@@ -1,0 +1,74 @@
+{
+  "categories": [
+    {
+      "id": 1,
+      "name": "动画",
+      "icon": "🎨",
+      "isHighlighted": false,
+      "color": "#00a1d6"
+    },
+    {
+      "id": 2,
+      "name": "娱乐",
+      "icon": "🎪",
+      "isHighlighted": false,
+      "color": "#00a1d6"
+    },
+    {
+      "id": 3,
+      "name": "科技数码",
+      "icon": "💻",
+      "isHighlighted": false,
+      "color": "#00a1d6"
+    },
+    {
+      "id": 4,
+      "name": "美食",
+      "icon": "🍜",
+      "isHighlighted": false,
+      "color": "#00a1d6"
+    },
+    {
+      "id": 5,
+      "name": "汽车",
+      "icon": "🚗",
+      "isHighlighted": false,
+      "color": "#00a1d6"
+    },
+    {
+      "id": 6,
+      "name": "体育运动",
+      "icon": "⚽",
+      "isHighlighted": false,
+      "color": "#00a1d6"
+    },
+    {
+      "id": 7,
+      "name": "vlog",
+      "icon": "📹",
+      "isHighlighted": false,
+      "color": "#00a1d6"
+    },
+    {
+      "id": 8,
+      "name": "游戏",
+      "icon": "🎮",
+      "isHighlighted": false,
+      "color": "#00a1d6"
+    },
+    {
+      "id": 9,
+      "name": "知识",
+      "icon": "📚",
+      "isHighlighted": false,
+      "color": "#00a1d6"
+    },
+    {
+      "id": 10,
+      "name": "资讯",
+      "icon": "📰",
+      "isHighlighted": false,
+      "color": "#00a1d6"
+    }
+  ]
+} 

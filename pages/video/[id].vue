@@ -1,0 +1,791 @@
+<template>
+  <div class="video-detail-page">
+    <div class="container">
+      <!-- 视频播放器 -->
+      <section class="video-player-section">
+        <div class="video-player-container">
+          <video
+            ref="videoRef"
+            :src="currentVideo?.videoUrl"
+            controls
+            class="video-player"
+          ></video>
+        </div>
+      </section>
+
+      <!-- 视频信息 -->
+      <section class="video-info-section">
+        <div class="video-header">
+          <h1 class="video-title">{{ currentVideo?.title }}</h1>
+          
+          <div class="video-stats">
+            <div class="stat-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
+              <span>{{ formatViews(currentVideo?.views || 0) }}播放</span>
+            </div>
+            <div class="stat-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              <span>{{ formatViews(currentVideo?.likes || 0) }}</span>
+            </div>
+            <div class="stat-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              <span>{{ currentVideo?.comments || 0 }}评论</span>
+            </div>
+            <div class="stat-item">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12,6 12,12 16,14"></polyline>
+              </svg>
+              <span>{{ currentVideo?.duration }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="video-actions">
+          <button
+            @click="toggleLike"
+            class="action-btn"
+            :class="{ active: currentVideo?.isLiked }"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span>{{ currentVideo?.isLiked ? '已点赞' : '点赞' }}</span>
+          </button>
+          
+          <button
+            @click="toggleFavorite"
+            class="action-btn"
+            :class="{ active: currentVideo?.isCollected }"
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
+            </svg>
+            <span>{{ currentVideo?.isCollected ? '已收藏' : '收藏' }}</span>
+          </button>
+          
+        </div>
+
+        <div class="video-description">
+          <h3>视频简介</h3>
+          <p>{{ currentVideo?.description }}</p>
+          <div class="video-tags">
+            <span
+              v-for="tag in currentVideo?.tags"
+              :key="tag"
+              class="tag"
+            >
+              {{ tag }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 评论区域 -->
+      <section class="comments-section">
+        <div class="comments-header">
+          <h3>评论 ({{ videoComments.length }})</h3>
+        </div>
+
+        <!-- 发表评论 -->
+        <div class="comment-form">
+          <img
+            v-lazy="`https://picsum.photos/40/40?random=999`"
+            alt="用户头像"
+            class="user-avatar"
+          />
+          <div class="comment-input-container">
+            <textarea
+              v-model="newComment"
+              placeholder="发一条友善的评论"
+              class="comment-input"
+              rows="3"
+            ></textarea>
+            <button
+              @click="submitComment"
+              class="btn btn-primary"
+              :disabled="!newComment.trim()"
+            >
+              发表评论
+            </button>
+          </div>
+        </div>
+
+        <!-- 评论列表 -->
+        <div class="comments-list">
+          <div
+            v-for="comment in videoComments"
+            :key="comment.id"
+            class="comment-item"
+          >
+            <img
+              v-lazy="comment.userAvatar"
+              :alt="comment.userName"
+              class="comment-avatar"
+            />
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author">{{ comment.userName }}</span>
+                <span class="comment-time">{{ comment.time }}</span>
+              </div>
+              <p class="comment-text">{{ comment.content }}</p>
+              <div class="comment-actions">
+                <button
+                  @click="toggleCommentLike(comment.id)"
+                  class="comment-action"
+                  :class="{ active: comment.isLiked }"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                  </svg>
+                  <span>{{ comment.likes }}</span>
+                </button>
+                <button class="comment-action">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                  </svg>
+                  <span>回复</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 相关视频 -->
+      <section class="related-videos-section">
+        <h3>相关视频</h3>
+        <div class="related-videos-grid">
+          <div
+            v-for="video in relatedVideos"
+            :key="video.id"
+            class="related-video-card"
+            @click="goToVideo(video.id)"
+          >
+            <div class="related-video-thumbnail">
+              <img
+                v-lazy="video.thumbnailUrl"
+                :alt="video.title"
+                class="lazy-placeholder"
+              />
+              <div class="related-video-duration">{{ video.duration }}</div>
+            </div>
+            <div class="related-video-info">
+              <h4 class="related-video-title text-ellipsis-2">{{ video.title }}</h4>
+              <p class="related-video-uploader">{{ video.uploaderName }}</p>
+              <div class="related-video-stats">
+                <span>{{ formatViews(video.views) }}播放</span>
+                <span>{{ formatTime(video.uploadDate) }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useAppStore } from '~/stores/app'
+
+// 使用状态管理
+const store = useAppStore()
+const route = useRoute()
+
+// 响应式数据
+const videoRef = ref<HTMLVideoElement>()
+const newComment = ref('')
+let player: any = null
+
+// 计算属性
+const videoId = computed(() => parseInt(route.params.id as string))
+const currentVideo = computed(() => store.videos.find((v: any) => v.id === videoId.value))
+const videoComments = computed(() => store.comments.filter((c: any) => c.videoId === videoId.value))
+const relatedVideos = computed(() => {
+  if (!currentVideo.value) return []
+  return store.videos
+    .filter((v: any) => v.id !== videoId.value && v.category === currentVideo.value?.category)
+    .slice(0, 6)
+})
+
+// 方法
+const formatViews = (views: number) => {
+  return store.formatViews(views)
+}
+
+const formatTime = (dateString: string) => {
+  return store.formatTime(dateString)
+}
+
+const toggleLike = () => {
+  if (currentVideo.value) {
+    store.toggleLike(currentVideo.value.id)
+  }
+}
+
+const toggleFavorite = () => {
+  if (currentVideo.value) {
+    store.toggleFavorite(currentVideo.value.id)
+  }
+}
+
+const toggleCommentLike = (commentId: number) => {
+  const comment = store.comments.find((c: any) => c.id === commentId)
+  if (comment) {
+    comment.isLiked = !comment.isLiked
+    if (comment.isLiked) {
+      comment.likes++
+    } else {
+      comment.likes--
+    }
+  }
+}
+
+const submitComment = () => {
+  if (!newComment.value.trim() || !currentVideo.value) return
+
+  const newCommentObj = {
+    id: Date.now(),
+    videoId: currentVideo.value.id,
+    userName: '当前用户',
+    userAvatar: 'https://picsum.photos/40/40?random=999',
+    content: newComment.value,
+    likes: 0,
+    replies: 0,
+    time: '刚刚',
+    isLiked: false
+  }
+
+  store.comments.unshift(newCommentObj)
+  newComment.value = ''
+}
+
+const goToVideo = (videoId: number) => {
+  navigateTo(`/video/${videoId}`)
+}
+
+// 初始化Plyr播放器
+const initPlayer = () => {
+  if (videoRef.value && !player) {
+    try {
+      // 检查Plyr是否可用
+      if (typeof window !== 'undefined' && (window as any).Plyr) {
+        player = new (window as any).Plyr(videoRef.value, {
+          controls: [
+            'play-large',
+            'play',
+            'progress',
+            'current-time',
+            'mute',
+            'volume',
+            'captions',
+            'settings',
+            'pip',
+            'airplay',
+            'fullscreen'
+          ],
+          settings: ['captions', 'quality', 'speed'],
+          speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
+        })
+      } else {
+        // 如果Plyr不可用，使用原生HTML5播放器
+        if (videoRef.value) {
+          videoRef.value.controls = true
+        }
+      }
+    } catch (error) {
+      console.error('Plyr初始化失败:', error)
+      // 如果Plyr初始化失败，使用原生HTML5播放器
+      if (videoRef.value) {
+        videoRef.value.controls = true
+      }
+    }
+  }
+}
+
+// 生命周期
+onMounted(() => {
+  // 添加观看历史
+  if (currentVideo.value) {
+    store.addToHistory(currentVideo.value.id)
+  }
+  
+  // 延迟初始化播放器，确保Plyr完全加载
+  nextTick(() => {
+    setTimeout(() => {
+      initPlayer()
+    }, 100)
+  })
+})
+
+onUnmounted(() => {
+  if (player) {
+    player.destroy()
+    player = null
+  }
+})
+</script>
+
+<style scoped>
+/* 视频详情页样式 */
+.video-detail-page {
+  min-height: 100vh;
+  background: var(--bilibili-gray);
+  display: flex;
+  justify-content: space-evenly;
+}
+
+/* 视频播放器区域 */
+.video-player-section {
+  margin-bottom: 24px;
+}
+
+.video-player-container {
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.video-player {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16/9;
+}
+
+/* 视频信息区域 */
+.video-info-section {
+  max-width: 1000px;
+  margin: 0 auto 32px;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.video-header {
+  margin-bottom: 20px;
+}
+
+.video-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--bilibili-text);
+  margin-bottom: 16px;
+  line-height: 1.4;
+}
+
+.video-stats {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  color: var(--bilibili-text-secondary);
+  font-size: 14px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.video-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--bilibili-border);
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 1px solid var(--bilibili-border);
+  border-radius: 8px;
+  background: white;
+  color: var(--bilibili-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.action-btn:hover {
+  background: var(--bilibili-gray);
+}
+
+.action-btn.active {
+  background: var(--bilibili-pink);
+  color: white;
+  border-color: var(--bilibili-pink);
+}
+
+.video-meta {
+  margin-bottom: 24px;
+}
+
+.uploader-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bilibili-gray);
+  border-radius: 8px;
+}
+
+.uploader-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.uploader-details {
+  flex: 1;
+}
+
+.uploader-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--bilibili-text);
+  margin-bottom: 4px;
+}
+
+.upload-date {
+  font-size: 14px;
+  color: var(--bilibili-text-secondary);
+}
+
+.video-description {
+  border-top: 1px solid var(--bilibili-border);
+  padding-top: 20px;
+}
+
+.video-description h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--bilibili-text);
+  margin-bottom: 12px;
+}
+
+.video-description p {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--bilibili-text);
+  margin-bottom: 16px;
+}
+
+.video-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 6px 12px;
+  background: var(--bilibili-gray);
+  color: var(--bilibili-text-secondary);
+  border-radius: 16px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tag:hover {
+  background: var(--bilibili-pink);
+  color: white;
+}
+
+/* 评论区域 */
+.comments-section {
+  max-width: 1000px;
+  margin: 0 auto 32px;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.comments-header {
+  margin-bottom: 24px;
+}
+
+.comments-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--bilibili-text);
+}
+
+.comment-form {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--bilibili-border);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.comment-input-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comment-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--bilibili-border);
+  border-radius: 8px;
+  font-size: 14px;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+}
+
+.comment-input:focus {
+  outline: none;
+  border-color: var(--bilibili-pink);
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.comment-item {
+  display: flex;
+  gap: 16px;
+}
+
+.comment-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.comment-content {
+  flex: 1;
+}
+
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.comment-author {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--bilibili-text);
+}
+
+.comment-time {
+  font-size: 12px;
+  color: var(--bilibili-text-secondary);
+}
+
+.comment-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--bilibili-text);
+  margin-bottom: 12px;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 16px;
+}
+
+.comment-action {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  background: none;
+  color: var(--bilibili-text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+.comment-action:hover {
+  background: var(--bilibili-gray);
+  color: var(--bilibili-text);
+}
+
+.comment-action.active {
+  color: var(--bilibili-pink);
+}
+
+/* 相关视频区域 */
+.related-videos-section {
+  max-width: 1000px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.related-videos-section h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--bilibili-text);
+  margin-bottom: 20px;
+}
+
+.related-videos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.related-video-card {
+  display: flex;
+  gap: 12px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.related-video-card:hover {
+  background: var(--bilibili-gray);
+}
+
+.related-video-thumbnail {
+  position: relative;
+  width: 120px;
+  height: 68px;
+  flex-shrink: 0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.related-video-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.related-video-duration {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-size: 10px;
+}
+
+.related-video-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.related-video-title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--bilibili-text);
+  margin-bottom: 4px;
+  height: 40px;
+  overflow: hidden;
+}
+
+.related-video-uploader {
+  font-size: 12px;
+  color: var(--bilibili-text-secondary);
+  margin-bottom: 4px;
+}
+
+.related-video-stats {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  color: var(--bilibili-text-secondary);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .video-info-section,
+  .comments-section,
+  .related-videos-section {
+    margin: 0 16px 24px;
+    padding: 16px;
+  }
+  
+  .video-title {
+    font-size: 20px;
+  }
+  
+  .video-stats {
+    gap: 16px;
+    font-size: 12px;
+  }
+  
+  .video-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .action-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+  
+  .uploader-info {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  
+  .comment-form {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .related-videos-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .related-video-card {
+    flex-direction: column;
+  }
+  
+  .related-video-thumbnail {
+    width: 100%;
+    height: 120px;
+  }
+}
+</style> 

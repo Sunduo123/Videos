@@ -1,0 +1,44 @@
+{
+  "carousel": [
+    {
+      "id": 1,
+      "title": "bilibili moe 2023 16强双双赛",
+      "imageUrl": "https://picsum.photos/1200/400?random=1",
+      "linkUrl": "/detail/1",
+      "description": "年度最受欢迎角色评选",
+      "backgroundColor": "#00a1d6"
+    },
+    {
+      "id": 2,
+      "title": "原神新角色伊涅芙预告",
+      "imageUrl": "https://picsum.photos/1200/400?random=2",
+      "linkUrl": "/detail/2",
+      "description": "居家旅行必备角色",
+      "backgroundColor": "#ff6b35"
+    },
+    {
+      "id": 3,
+      "title": "明日方舟限定干员前瞻",
+      "imageUrl": "https://picsum.photos/1200/400?random=3",
+      "linkUrl": "/detail/3",
+      "description": "斩业星熊即将登场",
+      "backgroundColor": "#ff4757"
+    },
+    {
+      "id": 4,
+      "title": "FGO九周年庆典",
+      "imageUrl": "https://picsum.photos/1200/400?random=4",
+      "linkUrl": "/detail/4",
+      "description": "九夏溟花引专属PV",
+      "backgroundColor": "#00a1d6"
+    },
+    {
+      "id": 5,
+      "title": "科技数码新品发布",
+      "imageUrl": "https://picsum.photos/1200/400?random=5",
+      "linkUrl": "/detail/5",
+      "description": "最新科技产品评测",
+      "backgroundColor": "#2ed573"
+    }
+  ]
+} 
