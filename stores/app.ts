@@ -24,6 +24,7 @@ export interface Video {
   tags: string[]
   isLiked: boolean
   isCollected: boolean
+  youtubeId?: string
 }
 
 export interface Comment {
@@ -60,26 +61,26 @@ export const useAppStore = defineStore('app', {
     // 用户相关
     user: null as User | null,
     isLoggedIn: false,
-    
+
     // 数据相关
     videos: [] as Video[],
     categories: [] as Category[],
     carousel: [] as CarouselItem[],
     comments: [] as Comment[],
-    
+
     // 页面状态
-    currentCategory: '全部',
+    currentCategory: 'All',
     searchQuery: '',
     isLoading: false,
-    
+
     // 用户行为
     favorites: [] as number[], // 收藏的视频ID
     history: [] as number[], // 观看历史的视频ID
     likedVideos: [] as number[], // 点赞的视频ID
-    
+
     // 轮播图状态
     currentCarouselIndex: 0,
-    
+
     // 响应式状态
     isMobile: false,
     sidebarOpen: false
@@ -88,7 +89,7 @@ export const useAppStore = defineStore('app', {
   getters: {
     // 获取当前分类的视频
     filteredVideos: (state) => {
-      if (state.currentCategory === '全部') {
+      if (state.currentCategory === 'All') {
         return state.videos
       }
       return state.videos.filter(video => video.category === state.currentCategory)
@@ -100,7 +101,7 @@ export const useAppStore = defineStore('app', {
         return state.videos
       }
       const query = state.searchQuery.toLowerCase()
-      return state.videos.filter(video => 
+      return state.videos.filter(video =>
         video.title.toLowerCase().includes(query) ||
         video.description.toLowerCase().includes(query) ||
         video.uploaderName.toLowerCase().includes(query) ||
@@ -123,35 +124,37 @@ export const useAppStore = defineStore('app', {
       return state.videos.filter(video => state.likedVideos.includes(video.id))
     },
 
-    // 格式化观看次数
-    formatViews: () => (views: number) => {
-      if (views >= 10000) {
-        return (views / 10000).toFixed(1) + '万'
-      }
-      return views.toString()
-    },
+         // 格式化观看次数
+     formatViews: () => (views: number) => {
+       if (views >= 1000000) {
+         return (views / 1000000).toFixed(1) + 'M'
+       } else if (views >= 1000) {
+         return (views / 1000).toFixed(1) + 'K'
+       }
+       return views.toString()
+     },
 
-    // 格式化时间
-    formatTime: () => (dateString: string) => {
-      const date = new Date(dateString)
-      const now = new Date()
-      const diff = now.getTime() - date.getTime()
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24))
-      
-      if (days === 0) {
-        return '今天'
-      } else if (days === 1) {
-        return '昨天'
-      } else if (days < 7) {
-        return `${days}天前`
-      } else if (days < 30) {
-        return `${Math.floor(days / 7)}周前`
-      } else if (days < 365) {
-        return `${Math.floor(days / 30)}个月前`
-      } else {
-        return `${Math.floor(days / 365)}年前`
-      }
-    }
+         // 格式化时间
+     formatTime: () => (dateString: string) => {
+       const date = new Date(dateString)
+       const now = new Date()
+       const diff = now.getTime() - date.getTime()
+       const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+
+       if (days === 0) {
+         return 'Today'
+       } else if (days === 1) {
+         return 'Yesterday'
+       } else if (days < 7) {
+         return `${days} days ago`
+       } else if (days < 30) {
+         return `${Math.floor(days / 7)} weeks ago`
+       } else if (days < 365) {
+         return `${Math.floor(days / 30)} months ago`
+       } else {
+         return `${Math.floor(days / 365)} years ago`
+       }
+     }
   },
 
   actions: {
@@ -160,24 +163,22 @@ export const useAppStore = defineStore('app', {
       this.isLoading = true
       try {
         // 并行加载所有数据
-        const [videosRes, categoriesRes, carouselRes, commentsRes] = await Promise.all([
-          fetch('/data/videos.json'),
+        const [videosRes, categoriesRes, carouselRes] = await Promise.all([
+          fetch('/data/youtube-videos/example-batch.json'),
           fetch('/data/categories.json'),
-          fetch('/data/carousel.json'),
-          fetch('/data/comments.json')
+          fetch('/data/carousel.json')
         ])
 
-        const [videosData, categoriesData, carouselData, commentsData] = await Promise.all([
+        const [videosData, categoriesData, carouselData] = await Promise.all([
           videosRes.json(),
           categoriesRes.json(),
-          carouselRes.json(),
-          commentsRes.json()
+          carouselRes.json()
         ])
 
         this.videos = videosData.videos
         this.categories = categoriesData.categories
         this.carousel = carouselData.carousel
-        this.comments = commentsData.comments
+        this.comments = [] // 暂时使用空数组
 
         // 从localStorage恢复用户状态
         this.loadUserState()
@@ -265,8 +266,8 @@ export const useAppStore = defineStore('app', {
     },
 
     prevCarousel() {
-      this.currentCarouselIndex = this.currentCarouselIndex === 0 
-        ? this.carousel.length - 1 
+      this.currentCarouselIndex = this.currentCarouselIndex === 0
+        ? this.carousel.length - 1
         : this.currentCarouselIndex - 1
     },
 
@@ -292,19 +293,19 @@ export const useAppStore = defineStore('app', {
 
     // 用户状态持久化
     saveUserState() {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('bilibili-favorites', JSON.stringify(this.favorites))
-        localStorage.setItem('bilibili-history', JSON.stringify(this.history))
-        localStorage.setItem('bilibili-liked', JSON.stringify(this.likedVideos))
-      }
+             if (typeof window !== 'undefined') {
+         localStorage.setItem('videohub-favorites', JSON.stringify(this.favorites))
+         localStorage.setItem('videohub-history', JSON.stringify(this.history))
+         localStorage.setItem('videohub-liked', JSON.stringify(this.likedVideos))
+       }
     },
 
     loadUserState() {
       if (typeof window !== 'undefined') {
-        try {
-          const favorites = localStorage.getItem('bilibili-favorites')
-          const history = localStorage.getItem('bilibili-history')
-          const liked = localStorage.getItem('bilibili-liked')
+                 try {
+           const favorites = localStorage.getItem('videohub-favorites')
+           const history = localStorage.getItem('videohub-history')
+           const liked = localStorage.getItem('videohub-liked')
 
           if (favorites) {
             this.favorites = JSON.parse(favorites)
@@ -331,24 +332,24 @@ export const useAppStore = defineStore('app', {
     login(user: User) {
       this.user = user
       this.isLoggedIn = true
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('bilibili-user', JSON.stringify(user))
-      }
+             if (typeof window !== 'undefined') {
+         localStorage.setItem('videohub-user', JSON.stringify(user))
+       }
     },
 
     // 登出
     logout() {
       this.user = null
       this.isLoggedIn = false
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('bilibili-user')
-      }
+             if (typeof window !== 'undefined') {
+         localStorage.removeItem('videohub-user')
+       }
     },
 
     // 检查登录状态
     checkLoginStatus() {
       if (typeof window !== 'undefined') {
-        const userStr = localStorage.getItem('bilibili-user')
+                 const userStr = localStorage.getItem('videohub-user')
         if (userStr) {
           try {
             const user = JSON.parse(userStr)
@@ -361,4 +362,4 @@ export const useAppStore = defineStore('app', {
       }
     }
   }
-}) 
+})

@@ -20,7 +20,7 @@
               <p class="carousel-description">{{ item.description }}</p>
             </div>
           </div>
-          
+
           <!-- 轮播图指示器 -->
           <div class="carousel-indicators">
             <button
@@ -31,7 +31,7 @@
               @click="setCarouselIndex(index)"
             ></button>
           </div>
-          
+
           <!-- 轮播图控制按钮 -->
           <button class="carousel-control prev" @click="prevCarousel">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -51,10 +51,10 @@
         <div class="category-nav">
           <button
             class="category-item"
-            :class="{ active: currentCategory === '全部' }"
-            @click="setCategory('全部')"
+            :class="{ active: currentCategory === 'All' }"
+            @click="setCategory('All')"
           >
-            全部
+            All
           </button>
           <button
             v-for="category in categories"
@@ -76,7 +76,7 @@
       <section class="videos-section">
         <div class="section-header">
           <h2 class="section-title">
-            {{ currentCategory === '全部' ? '推荐视频' : currentCategory }}
+            {{ currentCategory === 'All' ? 'Recommended Videos' : currentCategory }}
           </h2>
           <div class="section-actions">
             <button class="btn btn-secondary" @click="refreshVideos">
@@ -85,7 +85,7 @@
                 <polyline points="1,20 1,14 7,14"></polyline>
                 <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
               </svg>
-              刷新
+              Refresh
             </button>
           </div>
         </div>
@@ -93,7 +93,7 @@
         <!-- 加载状态 -->
         <div v-if="isLoading" class="loading-container">
           <div class="loading"></div>
-          <p>正在加载视频...</p>
+          <p>Loading videos...</p>
         </div>
 
         <!-- 视频网格 -->
@@ -111,10 +111,10 @@
                 :alt="video.title"
                 class="lazy-placeholder"
               />
-              
+
               <!-- 视频时长 -->
               <div class="video-duration">{{ video.duration }}</div>
-              
+
               <!-- 播放按钮 -->
               <div class="video-play-overlay">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -126,7 +126,7 @@
             <!-- 视频信息 -->
             <div class="video-info">
               <h3 class="video-title text-ellipsis-2">{{ video.title }}</h3>
-              
+
               <div class="video-meta">
                 <div class="video-stats">
                   <span class="video-views">
@@ -143,7 +143,7 @@
                     {{ formatViews(video.likes) }}
                   </span>
                 </div>
-                
+
                 <div class="video-actions">
                   <button
                     @click.stop="toggleLike(video.id)"
@@ -165,7 +165,7 @@
                   </button>
                 </div>
               </div>
-              
+
               <div class="video-uploader">
                 <span class="uploader-name">{{ video.uploaderName }}</span>
                 <span class="upload-date">{{ formatTime(video.uploadDate) }}</span>
@@ -180,8 +180,8 @@
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="8" y1="12" x2="16" y2="12"></line>
           </svg>
-          <h3>暂无视频</h3>
-          <p>该分类下暂时没有视频内容</p>
+                     <h3>No Videos</h3>
+           <p>No videos available in this category</p>
         </div>
       </section>
     </div>
@@ -672,48 +672,48 @@ onUnmounted(() => {
   .carousel {
     height: 200px;
   }
-  
+
   .carousel-content {
     padding: 20px;
   }
-  
+
   .carousel-title {
     font-size: 20px;
   }
-  
+
   .carousel-description {
     font-size: 14px;
   }
-  
+
   .category-nav {
     padding: 16px 0;
     gap: 8px;
   }
-  
+
   .category-item {
     font-size: 12px;
     padding: 8px 12px;
   }
-  
+
   .video-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
   }
-  
+
   .video-info {
     padding: 12px;
   }
-  
+
   .video-title {
     font-size: 12px;
     height: 32px;
   }
-  
+
   .video-stats {
     font-size: 10px;
     gap: 12px;
   }
-  
+
   .section-title {
     font-size: 20px;
   }
@@ -723,12 +723,12 @@ onUnmounted(() => {
   .video-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .carousel-control {
     width: 40px;
     height: 40px;
   }
-  
+
   .carousel-indicators {
     bottom: 16px;
     right: 20px;

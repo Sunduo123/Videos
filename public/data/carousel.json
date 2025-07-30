@@ -2,43 +2,43 @@
   "carousel": [
     {
       "id": 1,
-      "title": "bilibili moe 2023 16强双双赛",
+      "title": "MrBeast: I Spent $1,000,000 on Lottery Tickets",
       "imageUrl": "https://picsum.photos/1200/400?random=1",
-      "linkUrl": "/detail/1",
-      "description": "年度最受欢迎角色评选",
-      "backgroundColor": "#00a1d6"
-    },
-    {
-      "id": 2,
-      "title": "原神新角色伊涅芙预告",
-      "imageUrl": "https://picsum.photos/1200/400?random=2",
-      "linkUrl": "/detail/2",
-      "description": "居家旅行必备角色",
+      "linkUrl": "/video/1",
+      "description": "Watch what happens when I spend a million dollars on lottery tickets! The results will shock you.",
       "backgroundColor": "#ff6b35"
     },
     {
-      "id": 3,
-      "title": "明日方舟限定干员前瞻",
-      "imageUrl": "https://picsum.photos/1200/400?random=3",
-      "linkUrl": "/detail/3",
-      "description": "斩业星熊即将登场",
-      "backgroundColor": "#ff4757"
-    },
-    {
-      "id": 4,
-      "title": "FGO九周年庆典",
-      "imageUrl": "https://picsum.photos/1200/400?random=4",
-      "linkUrl": "/detail/4",
-      "description": "九夏溟花引专属PV",
+      "id": 2,
+      "title": "PewDiePie: Minecraft Survival Series Finale",
+      "imageUrl": "https://picsum.photos/1200/400?random=2",
+      "linkUrl": "/video/2",
+      "description": "The epic conclusion to the Minecraft survival series. Don't miss this incredible finale!",
       "backgroundColor": "#00a1d6"
     },
     {
+      "id": 3,
+      "title": "Marques Brownlee: iPhone 16 Pro Max Review",
+      "imageUrl": "https://picsum.photos/1200/400?random=3",
+      "linkUrl": "/video/3",
+      "description": "The most comprehensive iPhone 16 Pro Max review. Is it worth the upgrade?",
+      "backgroundColor": "#ff6b9d"
+    },
+    {
+      "id": 4,
+      "title": "Taylor Swift: New Album 'Midnights' Live Performance",
+      "imageUrl": "https://picsum.photos/1200/400?random=4",
+      "linkUrl": "/video/4",
+      "description": "Exclusive live performance of songs from Taylor Swift's latest album 'Midnights'.",
+      "backgroundColor": "#ff6b35"
+    },
+    {
       "id": 5,
-      "title": "科技数码新品发布",
+      "title": "Kurzgesagt: How Black Holes Actually Work",
       "imageUrl": "https://picsum.photos/1200/400?random=5",
-      "linkUrl": "/detail/5",
-      "description": "最新科技产品评测",
-      "backgroundColor": "#2ed573"
+      "linkUrl": "/video/5",
+      "description": "The most accurate explanation of black holes you'll ever see. Science made simple.",
+      "backgroundColor": "#00a1d6"
     }
   ]
-} 
+}

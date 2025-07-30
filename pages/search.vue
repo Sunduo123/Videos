@@ -3,8 +3,8 @@
     <div class="container">
       <!-- 搜索头部 -->
       <section class="search-header">
-        <h1 class="search-title">搜索结果</h1>
-        <p class="search-subtitle">找到 {{ searchResults.length }} 个相关视频</p>
+        <h1 class="search-title">Search Results</h1>
+        <p class="search-subtitle">Found {{ searchResults.length }} related videos</p>
       </section>
 
       <!-- 搜索结果 -->
@@ -12,7 +12,7 @@
         <!-- 加载状态 -->
         <div v-if="isLoading" class="loading-container">
           <div class="loading"></div>
-          <p>正在搜索...</p>
+          <p>Searching...</p>
         </div>
 
         <!-- 空状态 -->
@@ -21,10 +21,10 @@
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.35-4.35"></path>
           </svg>
-          <h3>未找到相关视频</h3>
-          <p>试试其他关键词吧</p>
+          <h3>No videos found</h3>
+          <p>Try different keywords</p>
           <NuxtLink to="/" class="btn btn-primary">
-            返回首页
+            Back to Home
           </NuxtLink>
         </div>
 
@@ -43,10 +43,10 @@
                 :alt="video.title"
                 class="lazy-placeholder"
               />
-              
+
               <!-- 视频时长 -->
               <div class="video-duration">{{ video.duration }}</div>
-              
+
               <!-- 播放按钮 -->
               <div class="video-play-overlay">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -58,7 +58,7 @@
             <!-- 视频信息 -->
             <div class="video-info">
               <h3 class="video-title text-ellipsis-2">{{ video.title }}</h3>
-              
+
               <div class="video-meta">
                 <div class="video-stats">
                   <span class="video-views">
@@ -75,7 +75,7 @@
                     {{ formatViews(video.likes) }}
                   </span>
                 </div>
-                
+
                 <div class="video-actions">
                   <button
                     @click.stop="toggleLike(video.id)"
@@ -97,12 +97,12 @@
                   </button>
                 </div>
               </div>
-              
+
               <div class="video-uploader">
                 <span class="uploader-name">{{ video.uploaderName }}</span>
                 <span class="upload-date">{{ formatTime(video.uploadDate) }}</span>
               </div>
-              
+
               <div class="video-category">
                 <span class="category-tag">{{ video.category }}</span>
               </div>
@@ -395,29 +395,29 @@ const toggleFavorite = (videoId: number) => {
   .search-header {
     padding: 32px 0 16px;
   }
-  
+
   .search-title {
     font-size: 24px;
   }
-  
+
   .search-subtitle {
     font-size: 14px;
   }
-  
+
   .search-results-grid {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
   }
-  
+
   .video-info {
     padding: 12px;
   }
-  
+
   .video-title {
     font-size: 12px;
     height: 32px;
   }
-  
+
   .video-stats {
     font-size: 10px;
     gap: 12px;
@@ -429,4 +429,4 @@ const toggleFavorite = (videoId: number) => {
     grid-template-columns: 1fr;
   }
 }
-</style> 
+</style>

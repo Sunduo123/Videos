@@ -4,7 +4,19 @@
       <!-- 视频播放器 -->
       <section class="video-player-section">
         <div class="video-player-container">
+          <!-- YouTube 视频播放器 -->
+          <div v-if="currentVideo?.youtubeId" class="youtube-player-container">
+            <iframe
+              :src="`https://www.youtube.com/embed/${currentVideo.youtubeId}?autoplay=1&rel=0`"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              class="youtube-player"
+            ></iframe>
+          </div>
+          <!-- 原生视频播放器 -->
           <video
+            v-else
             ref="videoRef"
             :src="currentVideo?.videoUrl"
             controls
@@ -17,14 +29,14 @@
       <section class="video-info-section">
         <div class="video-header">
           <h1 class="video-title">{{ currentVideo?.title }}</h1>
-          
+
           <div class="video-stats">
             <div class="stat-item">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                 <circle cx="12" cy="12" r="3"></circle>
               </svg>
-              <span>{{ formatViews(currentVideo?.views || 0) }}播放</span>
+              <span>{{ formatViews(currentVideo?.views || 0) }} views</span>
             </div>
             <div class="stat-item">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -36,7 +48,7 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
               </svg>
-              <span>{{ currentVideo?.comments || 0 }}评论</span>
+              <span>{{ currentVideo?.comments || 0 }} comments</span>
             </div>
             <div class="stat-item">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -57,9 +69,9 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
-            <span>{{ currentVideo?.isLiked ? '已点赞' : '点赞' }}</span>
+            <span>{{ currentVideo?.isLiked ? 'Liked' : 'Like' }}</span>
           </button>
-          
+
           <button
             @click="toggleFavorite"
             class="action-btn"
@@ -68,13 +80,13 @@
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
             </svg>
-            <span>{{ currentVideo?.isCollected ? '已收藏' : '收藏' }}</span>
+            <span>{{ currentVideo?.isCollected ? 'Favorited' : 'Favorite' }}</span>
           </button>
-          
+
         </div>
 
         <div class="video-description">
-          <h3>视频简介</h3>
+          <h3>Video Description</h3>
           <p>{{ currentVideo?.description }}</p>
           <div class="video-tags">
             <span
@@ -91,20 +103,20 @@
       <!-- 评论区域 -->
       <section class="comments-section">
         <div class="comments-header">
-          <h3>评论 ({{ videoComments.length }})</h3>
+          <h3>Comments ({{ videoComments.length }})</h3>
         </div>
 
         <!-- 发表评论 -->
         <div class="comment-form">
           <img
             v-lazy="`https://picsum.photos/40/40?random=999`"
-            alt="用户头像"
+            alt="User Avatar"
             class="user-avatar"
           />
           <div class="comment-input-container">
             <textarea
               v-model="newComment"
-              placeholder="发一条友善的评论"
+              placeholder="Write a friendly comment..."
               class="comment-input"
               rows="3"
             ></textarea>
@@ -113,7 +125,7 @@
               class="btn btn-primary"
               :disabled="!newComment.trim()"
             >
-              发表评论
+              Post Comment
             </button>
           </div>
         </div>
@@ -151,7 +163,7 @@
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                   </svg>
-                  <span>回复</span>
+                  <span>Reply</span>
                 </button>
               </div>
             </div>
@@ -161,7 +173,7 @@
 
       <!-- 相关视频 -->
       <section class="related-videos-section">
-        <h3>相关视频</h3>
+        <h3>Related Videos</h3>
         <div class="related-videos-grid">
           <div
             v-for="video in relatedVideos"
@@ -316,7 +328,7 @@ onMounted(() => {
   if (currentVideo.value) {
     store.addToHistory(currentVideo.value.id)
   }
-  
+
   // 延迟初始化播放器，确保Plyr完全加载
   nextTick(() => {
     setTimeout(() => {
@@ -361,6 +373,18 @@ onUnmounted(() => {
   width: 100%;
   height: auto;
   aspect-ratio: 16/9;
+}
+
+.youtube-player-container {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16/9;
+}
+
+.youtube-player {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
 }
 
 /* 视频信息区域 */
@@ -744,48 +768,48 @@ onUnmounted(() => {
     margin: 0 16px 24px;
     padding: 16px;
   }
-  
+
   .video-title {
     font-size: 20px;
   }
-  
+
   .video-stats {
     gap: 16px;
     font-size: 12px;
   }
-  
+
   .video-actions {
     flex-wrap: wrap;
     gap: 8px;
   }
-  
+
   .action-btn {
     padding: 8px 12px;
     font-size: 12px;
   }
-  
+
   .uploader-info {
     flex-direction: column;
     text-align: center;
     gap: 12px;
   }
-  
+
   .comment-form {
     flex-direction: column;
     gap: 12px;
   }
-  
+
   .related-videos-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .related-video-card {
     flex-direction: column;
   }
-  
+
   .related-video-thumbnail {
     width: 100%;
     height: 120px;
   }
 }
-</style> 
+</style>

@@ -3,8 +3,8 @@
     <div class="container">
       <!-- 页面标题 -->
       <section class="page-header">
-        <h1 class="page-title">观看历史</h1>
-        <p class="page-subtitle">共观看了 {{ historyVideos.length }} 个视频</p>
+        <h1 class="page-title">Watch History</h1>
+        <p class="page-subtitle">You have watched {{ historyVideos.length }} videos</p>
       </section>
 
       <!-- 操作栏 -->
@@ -16,7 +16,7 @@
               <polyline points="1,20 1,14 7,14"></polyline>
               <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
             </svg>
-            刷新
+            Refresh
           </button>
         </div>
         <div class="actions-right">
@@ -25,7 +25,7 @@
               <polyline points="3,6 5,6 21,6"></polyline>
               <path d="M19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
             </svg>
-            清空历史
+            Clear History
           </button>
         </div>
       </section>
@@ -35,7 +35,7 @@
         <!-- 加载状态 -->
         <div v-if="isLoading" class="loading-container">
           <div class="loading"></div>
-          <p>正在加载历史...</p>
+          <p>Loading history...</p>
         </div>
 
         <!-- 空状态 -->
@@ -44,10 +44,10 @@
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12,6 12,12 16,14"></polyline>
           </svg>
-          <h3>暂无观看历史</h3>
-          <p>您还没有观看过任何视频</p>
+          <h3>No Watch History</h3>
+          <p>You haven't watched any videos yet</p>
           <NuxtLink to="/" class="btn btn-primary">
-            去发现更多视频
+            Discover More Videos
           </NuxtLink>
         </div>
 
@@ -71,10 +71,10 @@
                 :alt="video.title"
                 class="lazy-placeholder"
               />
-              
+
               <!-- 视频时长 -->
               <div class="video-duration">{{ video.duration }}</div>
-              
+
               <!-- 播放按钮 -->
               <div class="video-play-overlay">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -86,7 +86,7 @@
             <!-- 视频信息 -->
             <div class="video-info">
               <h3 class="video-title text-ellipsis-2">{{ video.title }}</h3>
-              
+
               <div class="video-meta">
                 <div class="video-stats">
                   <span class="video-views">
@@ -103,7 +103,7 @@
                     {{ formatViews(video.likes) }}
                   </span>
                 </div>
-                
+
                 <div class="video-actions">
                   <button
                     @click.stop="toggleLike(video.id)"
@@ -125,7 +125,7 @@
                   </button>
                 </div>
               </div>
-              
+
               <div class="video-uploader">
                 <span class="uploader-name">{{ video.uploaderName }}</span>
                 <span class="upload-date">{{ formatTime(video.uploadDate) }}</span>
@@ -492,51 +492,51 @@ const clearAllHistory = () => {
   .page-header {
     padding: 32px 0 16px;
   }
-  
+
   .page-title {
     font-size: 24px;
   }
-  
+
   .page-subtitle {
     font-size: 14px;
   }
-  
+
   .actions-section {
     flex-direction: column;
     gap: 16px;
     align-items: stretch;
   }
-  
+
   .actions-left,
   .actions-right {
     justify-content: center;
   }
-  
+
   .history-item {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
   }
-  
+
   .history-index {
     align-self: flex-start;
   }
-  
+
   .video-thumbnail {
     width: 100%;
     height: 120px;
   }
-  
+
   .video-title {
     font-size: 14px;
     height: 40px;
   }
-  
+
   .video-stats {
     font-size: 10px;
     gap: 12px;
   }
-  
+
   .history-actions {
     align-self: flex-end;
   }
@@ -546,14 +546,14 @@ const clearAllHistory = () => {
   .history-item {
     padding: 12px;
   }
-  
+
   .video-thumbnail {
     height: 100px;
   }
-  
+
   .video-title {
     font-size: 12px;
     height: 32px;
   }
 }
-</style> 
+</style>

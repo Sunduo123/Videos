@@ -1,0 +1,25 @@
+{
+  "workbench.colorTheme": "One Dark Pro Flat",
+  "workbench.preferredDarkColorTheme": "One Dark Pro Flat",
+  "workbench.preferredLightColorTheme": "One Dark Pro Flat",
+  "editor.fontSize": 14,
+  "editor.fontFamily": "'Consolas', 'Monaco', 'Courier New', monospace",
+  "editor.lineHeight": 1.5,
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.wordWrap": "on",
+  "editor.minimap.enabled": true,
+  "editor.rulers": [80, 120],
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+  "files.autoSave": "onFocusChange",
+  "files.trimTrailingWhitespace": true,
+  "files.insertFinalNewline": true,
+  "emmet.includeLanguages": {
+    "vue": "html",
+    "vue-html": "html"
+  },
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "javascript.preferences.importModuleSpecifier": "relative"
+} 

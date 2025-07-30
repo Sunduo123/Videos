@@ -2,73 +2,73 @@
   "categories": [
     {
       "id": 1,
-      "name": "动画",
-      "icon": "🎨",
-      "isHighlighted": false,
-      "color": "#00a1d6"
+      "name": "Automotive",
+      "icon": "🚗",
+      "isHighlighted": true,
+      "color": "#ff0000"
     },
     {
       "id": 2,
-      "name": "娱乐",
-      "icon": "🎪",
-      "isHighlighted": false,
-      "color": "#00a1d6"
+      "name": "Motorcycles",
+      "icon": "🏍️",
+      "isHighlighted": true,
+      "color": "#ff6b35"
     },
     {
       "id": 3,
-      "name": "科技数码",
-      "icon": "💻",
-      "isHighlighted": false,
+      "name": "AI",
+      "icon": "🤖",
+      "isHighlighted": true,
       "color": "#00a1d6"
     },
     {
       "id": 4,
-      "name": "美食",
-      "icon": "🍜",
+      "name": "Finance",
+      "icon": "💰",
       "isHighlighted": false,
-      "color": "#00a1d6"
+      "color": "#ff6b9d"
     },
     {
       "id": 5,
-      "name": "汽车",
-      "icon": "🚗",
+      "name": "Cybersecurity",
+      "icon": "🔒",
       "isHighlighted": false,
       "color": "#00a1d6"
     },
     {
       "id": 6,
-      "name": "体育运动",
-      "icon": "⚽",
+      "name": "Commerce and Industry",
+      "icon": "🏭",
       "isHighlighted": false,
-      "color": "#00a1d6"
+      "color": "#ff6b35"
     },
     {
       "id": 7,
-      "name": "vlog",
-      "icon": "📹",
+      "name": "Home Design",
+      "icon": "🏠",
       "isHighlighted": false,
-      "color": "#00a1d6"
+      "color": "#ff6b9d"
     },
     {
       "id": 8,
-      "name": "游戏",
-      "icon": "🎮",
+      "name": "Luxury Travel",
+      "icon": "✈️",
       "isHighlighted": false,
       "color": "#00a1d6"
     },
     {
       "id": 9,
-      "name": "知识",
-      "icon": "📚",
+      "name": "Dentistry",
+      "icon": "🦷",
       "isHighlighted": false,
-      "color": "#00a1d6"
+      "color": "#ff6b35"
     },
     {
       "id": 10,
-      "name": "资讯",
-      "icon": "📰",
+      "name": "Elderly Care",
+      "icon": "👴",
       "isHighlighted": false,
-      "color": "#00a1d6"
+      "color": "#ff6b9d"
     }
   ]
-} 
+}
