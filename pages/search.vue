@@ -4,7 +4,7 @@
       <!-- 搜索头部 -->
       <section class="search-header">
         <h1 class="search-title">Search Results</h1>
-        <p class="search-subtitle">Found {{ searchResults.length }} related videos</p>
+        <p class="search-subtitle">Found {{ (searchResults || []).length }} related videos</p>
       </section>
 
       <!-- 搜索结果 -->
@@ -16,7 +16,7 @@
         </div>
 
         <!-- 空状态 -->
-        <div v-else-if="searchResults.length === 0" class="empty-state">
+        <div v-else-if="!searchResults || searchResults.length === 0" class="empty-state">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.35-4.35"></path>
@@ -302,6 +302,12 @@ const toggleFavorite = (videoId: number) => {
   color: var(--bilibili-text);
   height: 40px;
   overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .video-meta {

@@ -4,7 +4,7 @@
       <!-- 页面标题 -->
       <section class="page-header">
         <h1 class="page-title">My Favorites</h1>
-        <p class="page-subtitle">You have {{ favoriteVideos.length }} favorite videos</p>
+        <p class="page-subtitle">You have {{ (favoriteVideos || []).length }} favorite videos</p>
       </section>
 
       <!-- 操作栏 -->
@@ -39,7 +39,7 @@
         </div>
 
         <!-- 空状态 -->
-        <div v-else-if="favoriteVideos.length === 0" class="empty-state">
+        <div v-else-if="!favoriteVideos || favoriteVideos.length === 0" class="empty-state">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
           </svg>
@@ -378,6 +378,12 @@ const clearAllFavorites = () => {
   color: var(--bilibili-text);
   height: 40px;
   overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .video-meta {

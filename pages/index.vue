@@ -1,5 +1,19 @@
 <template>
   <div class="home-page">
+    <!-- 网络状态提示 -->
+    <div v-if="!isOnline" class="network-status">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M1 1l22 22"></path>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+        <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+        <line x1="12" y1="20" x2="12.01" y2="20"></line>
+      </svg>
+      <span>No internet connection</span>
+    </div>
+
     <div class="container">
       <!-- 轮播图 -->
       <section class="carousel-section">
@@ -97,7 +111,7 @@
         </div>
 
         <!-- 视频网格 -->
-        <div v-else class="video-grid">
+        <div v-else-if="displayVideos && displayVideos.length > 0" class="video-grid">
           <div
             v-for="video in displayVideos"
             :key="video.id"
@@ -175,7 +189,7 @@
         </div>
 
         <!-- 空状态 -->
-        <div v-if="!isLoading && displayVideos.length === 0" class="empty-state">
+        <div v-if="!isLoading && (!displayVideos || displayVideos.length === 0)" class="empty-state">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="8" y1="12" x2="16" y2="12"></line>
@@ -199,12 +213,15 @@ const carouselRef = ref<HTMLElement>()
 let autoCarouselInterval: any = null
 
 // 计算属性
-const carousel = computed(() => store.carousel)
-const categories = computed(() => store.categories)
+const carousel = computed(() => store.carousel || [])
+const categories = computed(() => store.categories || [])
 const currentCategory = computed(() => store.currentCategory)
 const currentCarouselIndex = computed(() => store.currentCarouselIndex)
 const isLoading = computed(() => store.isLoading)
-const displayVideos = computed(() => store.filteredVideos)
+const displayVideos = computed(() => {
+  const videos = store.filteredVideos
+  return videos || []
+})
 
 // 方法
 const setCategory = (category: string) => {
@@ -262,17 +279,58 @@ const stopAutoCarousel = () => {
   }
 }
 
+// 网络状态检测
+const isOnline = ref(true) // 默认在线状态
+
+const updateOnlineStatus = () => {
+  if (navigator) {
+    isOnline.value = navigator.onLine
+    if (!isOnline.value) {
+      console.warn('Network connection lost')
+    }
+  }
+}
+
 // 生命周期
 onMounted(() => {
   startAutoCarousel()
+
+  // 监听网络状态变化
+  window.addEventListener('online', updateOnlineStatus)
+  window.addEventListener('offline', updateOnlineStatus)
 })
 
 onUnmounted(() => {
   stopAutoCarousel()
+
+  // 清理事件监听
+  window.removeEventListener('online', updateOnlineStatus)
+  window.removeEventListener('offline', updateOnlineStatus)
 })
 </script>
 
 <style scoped>
+/* 网络状态提示样式 */
+.network-status {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: #ff6b6b;
+  color: white;
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  z-index: 1000;
+  text-align: center;
+  justify-content: center;
+}
+
+.network-status svg {
+  flex-shrink: 0;
+}
 /* 主页样式 */
 .home-page {
   min-height: 100vh;
@@ -568,6 +626,12 @@ onUnmounted(() => {
   color: var(--bilibili-text);
   height: 40px;
   overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .video-meta {

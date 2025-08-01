@@ -4,14 +4,38 @@
       <!-- 视频播放器 -->
       <section class="video-player-section">
         <div class="video-player-container">
+          <!-- 网络错误提示 -->
+          <div v-if="networkError" class="network-error">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 1l22 22"></path>
+              <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+              <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+              <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+              <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+              <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+              <line x1="12" y1="20" x2="12.01" y2="20"></line>
+            </svg>
+            <h3>网络连接错误</h3>
+            <p>由于网络问题无法加载视频。请检查您的网络连接或稍后重试。</p>
+            <div class="error-actions">
+              <button @click="retryVideo" class="btn btn-primary">重试</button>
+              <button @click="checkNetworkStatus" class="btn btn-secondary">检查网络</button>
+            </div>
+            <div v-if="retryCount > 0" class="retry-info">
+              <p>已重试 {{ retryCount }} 次</p>
+            </div>
+          </div>
+
           <!-- YouTube 视频播放器 -->
-          <div v-if="currentVideo?.youtubeId" class="youtube-player-container">
+          <div v-else-if="currentVideo?.youtubeId" class="youtube-player-container">
             <iframe
               :src="`https://www.youtube.com/embed/${currentVideo.youtubeId}?autoplay=1&rel=0`"
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen
               class="youtube-player"
+              @error="handleVideoError"
+              @load="handleVideoLoad"
             ></iframe>
           </div>
           <!-- 原生视频播放器 -->
@@ -103,15 +127,16 @@
       <!-- 评论区域 -->
       <section class="comments-section">
         <div class="comments-header">
-          <h3>Comments ({{ videoComments.length }})</h3>
+          <h3>Comments ({{ (videoComments || []).length }})</h3>
         </div>
 
         <!-- 发表评论 -->
         <div class="comment-form">
           <img
-            v-lazy="`https://picsum.photos/40/40?random=999`"
+            v-lazy="`/images/default-avatar.png`"
             alt="User Avatar"
             class="user-avatar"
+            @error="$event.target.src = '/images/default-avatar.png'"
           />
           <div class="comment-input-container">
             <textarea
@@ -207,6 +232,7 @@
 <script setup lang="ts">
 import { useAppStore } from '~/stores/app'
 
+
 // 使用状态管理
 const store = useAppStore()
 const route = useRoute()
@@ -214,6 +240,9 @@ const route = useRoute()
 // 响应式数据
 const videoRef = ref<HTMLVideoElement>()
 const newComment = ref('')
+const networkError = ref(false)
+const retryCount = ref(0)
+const maxRetries = 3
 let player: any = null
 
 // 计算属性
@@ -279,6 +308,42 @@ const submitComment = () => {
   newComment.value = ''
 }
 
+// 网络错误处理
+const handleVideoError = () => {
+  networkError.value = true
+  console.log('Video loading error detected')
+}
+
+const handleVideoLoad = () => {
+  networkError.value = false
+  retryCount.value = 0
+  console.log('Video loaded successfully')
+}
+
+const retryVideo = () => {
+  if (retryCount.value < maxRetries) {
+    retryCount.value++
+    networkError.value = false
+    console.log(`Retrying video load (attempt ${retryCount.value}/${maxRetries})`)
+
+    // 强制重新加载iframe
+    const iframe = document.querySelector('.youtube-player') as HTMLIFrameElement
+    if (iframe) {
+      iframe.src = iframe.src
+    }
+  } else {
+    alert('已达到最大重试次数，请检查网络连接或稍后重试')
+  }
+}
+
+const checkNetworkStatus = () => {
+  if (navigator.onLine) {
+    alert('网络连接正常，可能是YouTube服务暂时不可用')
+  } else {
+    alert('网络连接已断开，请检查网络设置')
+  }
+}
+
 const goToVideo = (videoId: number) => {
   navigateTo(`/video/${videoId}`)
 }
@@ -335,6 +400,13 @@ onMounted(() => {
       initPlayer()
     }, 100)
   })
+
+  // 添加全局错误监听
+  window.addEventListener('error', (event) => {
+    if (event.target && (event.target as any).tagName === 'IFRAME') {
+      handleVideoError()
+    }
+  })
 })
 
 onUnmounted(() => {
@@ -342,6 +414,9 @@ onUnmounted(() => {
     player.destroy()
     player = null
   }
+
+  // 清理事件监听
+  window.removeEventListener('error', () => {})
 })
 </script>
 
@@ -407,6 +482,10 @@ onUnmounted(() => {
   color: var(--bilibili-text);
   margin-bottom: 16px;
   line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 100%;
 }
 
 .video-stats {
@@ -812,4 +891,68 @@ onUnmounted(() => {
     height: 120px;
   }
 }
+
+/* 网络错误样式 */
+.network-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+  background: #f8f9fa;
+  border-radius: 12px;
+  border: 2px dashed #dee2e6;
+  min-height: 300px;
+}
+
+.network-error svg {
+  color: #6c757d;
+  margin-bottom: 16px;
+}
+
+.network-error h3 {
+  color: #495057;
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.network-error p {
+  color: #6c757d;
+  margin-bottom: 20px;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+.error-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+.retry-info {
+  font-size: 12px;
+  color: #6c757d;
+  background: #e9ecef;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 8px;
+}
 </style>
+
+

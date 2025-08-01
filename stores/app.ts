@@ -89,6 +89,9 @@ export const useAppStore = defineStore('app', {
   getters: {
     // 获取当前分类的视频
     filteredVideos: (state) => {
+      if (!state.videos || state.videos.length === 0) {
+        return []
+      }
       if (state.currentCategory === 'All') {
         return state.videos
       }
@@ -97,6 +100,9 @@ export const useAppStore = defineStore('app', {
 
     // 获取搜索结果
     searchResults: (state) => {
+      if (!state.videos || state.videos.length === 0) {
+        return []
+      }
       if (!state.searchQuery.trim()) {
         return state.videos
       }
@@ -111,21 +117,33 @@ export const useAppStore = defineStore('app', {
 
     // 获取收藏的视频
     favoriteVideos: (state) => {
+      if (!state.videos || state.videos.length === 0) {
+        return []
+      }
       return state.videos.filter(video => state.favorites.includes(video.id))
     },
 
     // 获取观看历史的视频
     historyVideos: (state) => {
+      if (!state.videos || state.videos.length === 0) {
+        return []
+      }
       return state.videos.filter(video => state.history.includes(video.id))
     },
 
     // 获取点赞的视频
     likedVideosList: (state) => {
+      if (!state.videos || state.videos.length === 0) {
+        return []
+      }
       return state.videos.filter(video => state.likedVideos.includes(video.id))
     },
 
          // 格式化观看次数
      formatViews: () => (views: number) => {
+       if (!views || views === 0) {
+         return '0'
+       }
        if (views >= 1000000) {
          return (views / 1000000).toFixed(1) + 'M'
        } else if (views >= 1000) {
@@ -136,23 +154,30 @@ export const useAppStore = defineStore('app', {
 
          // 格式化时间
      formatTime: () => (dateString: string) => {
-       const date = new Date(dateString)
-       const now = new Date()
-       const diff = now.getTime() - date.getTime()
-       const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+       if (!dateString) {
+         return 'Unknown'
+       }
+       try {
+         const date = new Date(dateString)
+         const now = new Date()
+         const diff = now.getTime() - date.getTime()
+         const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 
-       if (days === 0) {
-         return 'Today'
-       } else if (days === 1) {
-         return 'Yesterday'
-       } else if (days < 7) {
-         return `${days} days ago`
-       } else if (days < 30) {
-         return `${Math.floor(days / 7)} weeks ago`
-       } else if (days < 365) {
-         return `${Math.floor(days / 30)} months ago`
-       } else {
-         return `${Math.floor(days / 365)} years ago`
+         if (days === 0) {
+           return 'Today'
+         } else if (days === 1) {
+           return 'Yesterday'
+         } else if (days < 7) {
+           return `${days} days ago`
+         } else if (days < 30) {
+           return `${Math.floor(days / 7)} weeks ago`
+         } else if (days < 365) {
+           return `${Math.floor(days / 30)} months ago`
+         } else {
+           return `${Math.floor(days / 365)} years ago`
+         }
+       } catch (error) {
+         return 'Unknown'
        }
      }
   },
@@ -175,7 +200,15 @@ export const useAppStore = defineStore('app', {
           carouselRes.json()
         ])
 
-        this.videos = videosData.videos
+        // 从新的数据结构中提取所有视频
+        this.videos = []
+        if (videosData.categories) {
+          Object.values(videosData.categories).forEach((category: any) => {
+            if (category.videos && Array.isArray(category.videos)) {
+              this.videos.push(...category.videos)
+            }
+          })
+        }
         this.categories = categoriesData.categories
         this.carousel = carouselData.carousel
         this.comments = [] // 暂时使用空数组

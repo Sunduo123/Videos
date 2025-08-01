@@ -4,7 +4,7 @@
       <!-- 页面标题 -->
       <section class="page-header">
         <h1 class="page-title">Watch History</h1>
-        <p class="page-subtitle">You have watched {{ historyVideos.length }} videos</p>
+        <p class="page-subtitle">You have watched {{ (historyVideos || []).length }} videos</p>
       </section>
 
       <!-- 操作栏 -->
@@ -39,7 +39,7 @@
         </div>
 
         <!-- 空状态 -->
-        <div v-else-if="historyVideos.length === 0" class="empty-state">
+        <div v-else-if="!historyVideos || historyVideos.length === 0" class="empty-state">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
             <polyline points="12,6 12,12 16,14"></polyline>
@@ -396,6 +396,12 @@ const clearAllHistory = () => {
   color: var(--bilibili-text);
   height: 44px;
   overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .video-meta {
