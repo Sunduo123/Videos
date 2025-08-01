@@ -329,8 +329,40 @@
       "isLiked": false,
       "isCollected": false,
       "youtubeId": "r9WGd3TALaw"
+    },
+    {
+      "id": 13,
+      "title": "9 AI Skills You MUST Have to Become Rich in 2025",
+      "thumbnailUrl": "https://i.ytimg.com/vi/Eq8JgI3HmjI/hq720.jpg",
+      "videoUrl": "https://www.youtube.com/watch?v=Eq8JgI3HmjI",
+      "views": 1245789,
+      "likes": 45678,
+      "comments": 8901,
+      "duration": "19:23",
+      "uploaderName": "AI Channel",
+      "uploadDate": "2025-01-27",
+      "category": "AI",
+      "categoryId": 3,
+      "description": "Learn the 9 essential AI skills that will help you become rich in 2025. This comprehensive guide covers the most important artificial intelligence skills needed for career success and financial growth.",
+      "tags": [
+        "AI",
+        "Artificial Intelligence",
+        "Skills",
+        "Career",
+        "2025",
+        "Money",
+        "Rich",
+        "Technology",
+        "YouTube",
+        "Video",
+        "Online",
+        "Streaming"
+      ],
+      "isLiked": false,
+      "isCollected": false,
+      "youtubeId": "Eq8JgI3HmjI"
     }
   ],
-  "totalCount": 12,
-  "generatedAt": "2025-07-30T06:18:02.549Z"
+  "totalCount": 13,
+  "generatedAt": "2025-01-27T12:00:00.000Z"
 }
