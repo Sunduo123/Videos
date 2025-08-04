@@ -2,42 +2,42 @@
   "carousel": [
     {
       "id": 1,
-      "title": "MrBeast: I Spent $1,000,000 on Lottery Tickets",
-      "imageUrl": "https://picsum.photos/1200/400?random=1",
+      "title": "2025 ESCALADE IQ",
+      "imageUrl": "/images/image1.png",
       "linkUrl": "/video/1",
-      "description": "Watch what happens when I spend a million dollars on lottery tickets! The results will shock you.",
+      "description": "FIRST-EVER ALL-ELECTRIC THE LONGEST RANGE OF ANY EV SUV 7-SEATER LUXURY ELECTRIC SUV FROM: $127,700*",
       "backgroundColor": "#ff6b35"
     },
     {
       "id": 2,
-      "title": "PewDiePie: Minecraft Survival Series Finale",
-      "imageUrl": "https://picsum.photos/1200/400?random=2",
+      "title": "2025 F-150® Lightning®",
+      "imageUrl": "/images/image2.png",
       "linkUrl": "/video/2",
-      "description": "The epic conclusion to the Minecraft survival series. Don't miss this incredible finale!",
+      "description": "F-150 Lightning delivers the full-size truck capability you expect from an F-150 — with acceleration only an electric vehicle can provide!",
       "backgroundColor": "#00a1d6"
     },
     {
       "id": 3,
-      "title": "Marques Brownlee: iPhone 16 Pro Max Review",
-      "imageUrl": "https://picsum.photos/1200/400?random=3",
+      "title": "The Biggest Cybersecurity Issues Heading into 2025",
+      "imageUrl": "/images/image3.png",
       "linkUrl": "/video/3",
-      "description": "The most comprehensive iPhone 16 Pro Max review. Is it worth the upgrade?",
+      "description": "A new year brings challenges, and opportunities, for defenders and aggressors alike in the cybersecurity realm.",
       "backgroundColor": "#ff6b9d"
     },
     {
       "id": 4,
-      "title": "Taylor Swift: New Album 'Midnights' Live Performance",
-      "imageUrl": "https://picsum.photos/1200/400?random=4",
+      "title": "What Is a Virtual Currency?",
+      "imageUrl": "/images/image4.png",
       "linkUrl": "/video/4",
-      "description": "Exclusive live performance of songs from Taylor Swift's latest album 'Midnights'.",
+      "description": "A virtual currency is a digital representation of value. It is stored and transacted through designated mobile or computer applications. ",
       "backgroundColor": "#ff6b35"
     },
     {
       "id": 5,
-      "title": "Kurzgesagt: How Black Holes Actually Work",
-      "imageUrl": "https://picsum.photos/1200/400?random=5",
+      "title": "The Maldives Travel Guide",
+      "imageUrl": "/images/image5.png",
       "linkUrl": "/video/5",
-      "description": "The most accurate explanation of black holes you'll ever see. Science made simple.",
+      "description": " Once settled there, guests usually find world-class amenities, opulent dining, and a sense of deep tranquility that can only be found in such a secluded paradise.",
       "backgroundColor": "#00a1d6"
     }
   ]
