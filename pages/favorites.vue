@@ -145,10 +145,7 @@ const store = useAppStore()
 const favoriteVideos = computed(() => store.favoriteVideos)
 const isLoading = computed(() => store.isLoading)
 
-// 方法
-const formatViews = (views: number) => {
-  return store.formatViews(views)
-}
+import { formatViews } from '~/utils/formatters'
 
 const formatTime = (dateString: string) => {
   return store.formatTime(dateString)
@@ -172,7 +169,7 @@ const refreshFavorites = () => {
 }
 
 const clearAllFavorites = () => {
-  if (confirm('确定要清空所有收藏吗？此操作不可恢复。')) {
+  if (confirm('Are you sure you want to clear all favorites? This operation is irreversible.')) {
     store.clearFavorites()
   }
 }
@@ -471,13 +468,14 @@ const clearAllFavorites = () => {
   }
 
   .actions-section {
-    flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
   }
 
   .actions-left,
   .actions-right {
+    flex: 1;
     justify-content: center;
   }
 

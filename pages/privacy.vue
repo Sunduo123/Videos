@@ -10,7 +10,7 @@
 
         <div class="legal-section">
           <h2>1. Introduction</h2>
-          <p>At VideoHub ("we," "our," or "us"), we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our video sharing platform and related services.</p>
+          <p>At VideoH5 ("we," "our," or "us"), we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our video sharing platform and related services.</p>
 
           <p>By using our Service, you consent to the data practices described in this policy. If you do not agree with our policies and practices, please do not use our Service.</p>
         </div>
@@ -134,10 +134,10 @@
           <h2>10. Contact Us</h2>
           <p>If you have any questions about this Privacy Policy or our data practices, please contact us at:</p>
           <div class="contact-info">
-            <p><strong>Email:</strong> privacy@videohub.com</p>
+            <p><strong>Email:</strong> privacy@videoh5.com</p>
             <p><strong>Address:</strong> 1234 Innovation Drive, Tech City, TC 12345</p>
             <p><strong>Phone:</strong> +1 (555) 123-4567</p>
-            <p><strong>Data Protection Officer:</strong> dpo@videohub.com</p>
+            <p><strong>Data Protection Officer:</strong> dpo@videoh5.com</p>
           </div>
         </div>
 
@@ -163,9 +163,9 @@
 <script setup lang="ts">
 // 设置页面标题
 useHead({
-  title: 'Privacy Policy - VideoHub',
+        title: 'Privacy Policy - VideoH5',
   meta: [
-    { name: 'description', content: 'VideoHub Privacy Policy - Learn how we protect and handle your personal information.' }
+          { name: 'description', content: 'VideoH5 Privacy Policy - Learn how we protect and handle your personal information.' }
   ]
 })
 </script>

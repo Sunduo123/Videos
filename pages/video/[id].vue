@@ -4,7 +4,7 @@
       <!-- 视频播放器 -->
       <section class="video-player-section">
         <div class="video-player-container">
-          <!-- 网络错误提示 -->
+          <!-- Network Error -->
           <div v-if="networkError" class="network-error">
             <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M1 1l22 22"></path>
@@ -15,14 +15,14 @@
               <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
               <line x1="12" y1="20" x2="12.01" y2="20"></line>
             </svg>
-            <h3>网络连接错误</h3>
-            <p>由于网络问题无法加载视频。请检查您的网络连接或稍后重试。</p>
+            <h3>Network Connection Error</h3>
+            <p>Unable to load video due to network issues. Please check your network connection or try again later.</p>
             <div class="error-actions">
-              <button @click="retryVideo" class="btn btn-primary">重试</button>
-              <button @click="checkNetworkStatus" class="btn btn-secondary">检查网络</button>
+              <button @click="retryVideo" class="btn btn-primary">Retry</button>
+              <button @click="checkNetworkStatus" class="btn btn-secondary">Check Network</button>
             </div>
             <div v-if="retryCount > 0" class="retry-info">
-              <p>已重试 {{ retryCount }} 次</p>
+              <p>Retried {{ retryCount }} times</p>
             </div>
           </div>
 
@@ -147,7 +147,8 @@
             ></textarea>
             <button
               @click="submitComment"
-              class="btn btn-primary"
+              class="btn"
+              :class="newComment.trim() ? 'btn-primary' : 'btn-secondary'"
               :disabled="!newComment.trim()"
             >
               Post Comment
@@ -218,7 +219,7 @@
               <h4 class="related-video-title text-ellipsis-2">{{ video.title }}</h4>
               <p class="related-video-uploader">{{ video.uploaderName }}</p>
               <div class="related-video-stats">
-                <span>{{ formatViews(video.views) }}播放</span>
+                <span>{{ formatViews(video.views) }} views</span>
                 <span>{{ formatTime(video.uploadDate) }}</span>
               </div>
             </div>
@@ -256,10 +257,7 @@ const relatedVideos = computed(() => {
     .slice(0, 6)
 })
 
-// 方法
-const formatViews = (views: number) => {
-  return store.formatViews(views)
-}
+import { formatViews } from '~/utils/formatters'
 
 const formatTime = (dateString: string) => {
   return store.formatTime(dateString)
@@ -295,12 +293,12 @@ const submitComment = () => {
   const newCommentObj = {
     id: Date.now(),
     videoId: currentVideo.value.id,
-    userName: '当前用户',
+    userName: 'Current User',
     userAvatar: 'https://picsum.photos/40/40?random=999',
     content: newComment.value,
     likes: 0,
     replies: 0,
-    time: '刚刚',
+    time: 'Just now',
     isLiked: false
   }
 
@@ -442,6 +440,7 @@ onUnmounted(() => {
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
 }
 
 .video-player {
@@ -486,6 +485,7 @@ onUnmounted(() => {
   overflow-wrap: break-word;
   hyphens: auto;
   max-width: 100%;
+  white-space: normal;
 }
 
 .video-stats {
@@ -504,17 +504,18 @@ onUnmounted(() => {
 
 .video-actions {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   margin-bottom: 24px;
   padding-bottom: 20px;
   border-bottom: 1px solid var(--bilibili-border);
+  flex-wrap: wrap;
 }
 
 .action-btn {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 20px;
+  padding: 12px 24px;
   border: 1px solid var(--bilibili-border);
   border-radius: 8px;
   background: white;
@@ -523,16 +524,26 @@ onUnmounted(() => {
   transition: all 0.2s ease;
   font-size: 14px;
   font-weight: 500;
+  min-width: 120px;
+  white-space: nowrap;
+  overflow: hidden;
+  justify-content: center;
 }
 
 .action-btn:hover {
   background: var(--bilibili-gray);
+  border-color: var(--bilibili-gray);
 }
 
 .action-btn.active {
   background: var(--bilibili-pink);
   color: white;
   border-color: var(--bilibili-pink);
+}
+
+.action-btn.active:hover {
+  background: #ff3742;
+  border-color: #ff3742;
 }
 
 .video-meta {
@@ -660,10 +671,16 @@ onUnmounted(() => {
   padding: 12px 16px;
   border: 1px solid var(--bilibili-border);
   border-radius: 8px;
-  font-size: 14px;
+  font-size: 16px;
   resize: vertical;
   min-height: 80px;
   font-family: inherit;
+  /* 防止手机端点击时放大 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transform: scale(1);
+  -webkit-transform: scale(1);
 }
 
 .comment-input:focus {
@@ -841,7 +858,19 @@ onUnmounted(() => {
 
 /* 响应式设计 */
 @media (max-width: 768px) {
-  .video-info-section,
+  .video-player-container {
+    margin: 0 16px;
+    width: calc(100% - 32px);
+    max-width: none;
+  }
+
+  .video-info-section {
+    margin: 0 16px 24px;
+    padding: 16px;
+    width: calc(100% - 32px);
+    max-width: none;
+  }
+
   .comments-section,
   .related-videos-section {
     margin: 0 16px 24px;
@@ -849,22 +878,44 @@ onUnmounted(() => {
   }
 
   .video-title {
-    font-size: 20px;
+    font-size: 18px;
+    line-height: 1.3;
+    margin-bottom: 12px;
   }
 
   .video-stats {
-    gap: 16px;
+    gap: 12px;
     font-size: 12px;
   }
 
   .video-actions {
-    flex-wrap: wrap;
+    flex-direction: row;
+    flex-wrap: nowrap;
     gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
   }
 
   .action-btn {
-    padding: 8px 12px;
+    flex: 1;
+    padding: 10px 12px;
     font-size: 12px;
+    justify-content: center;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .action-btn svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
+  }
+
+  .action-btn span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .uploader-info {
@@ -878,6 +929,16 @@ onUnmounted(() => {
     gap: 12px;
   }
 
+  .comment-input {
+    /* 防止手机端点击时放大 */
+    font-size: 16px !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    transform: scale(1) !important;
+    -webkit-transform: scale(1) !important;
+  }
+
   .related-videos-grid {
     grid-template-columns: 1fr;
   }
@@ -889,6 +950,61 @@ onUnmounted(() => {
   .related-video-thumbnail {
     width: 100%;
     height: 120px;
+  }
+}
+
+@media (max-width: 480px) {
+  .video-player-container {
+    margin: 0 12px;
+    width: calc(100% - 24px);
+  }
+
+  .video-info-section {
+    margin: 0 12px 20px;
+    padding: 12px;
+    width: calc(100% - 24px);
+  }
+
+  .comments-section,
+  .related-videos-section {
+    margin: 0 12px 20px;
+    padding: 12px;
+  }
+
+  .video-title {
+    font-size: 16px;
+  }
+
+  .video-actions {
+    gap: 6px;
+  }
+
+  .action-btn {
+    padding: 8px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .action-btn svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .action-btn span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .comment-input {
+    /* 防止手机端点击时放大 */
+    font-size: 16px !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    transform: scale(1) !important;
+    -webkit-transform: scale(1) !important;
   }
 }
 
@@ -943,6 +1059,21 @@ onUnmounted(() => {
 
 .btn-secondary:hover {
   background: #5a6268;
+}
+
+.btn-primary {
+  background: var(--bilibili-pink);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background: #ff3742;
 }
 
 .retry-info {

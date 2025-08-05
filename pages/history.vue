@@ -128,7 +128,6 @@
 
               <div class="video-uploader">
                 <span class="uploader-name">{{ video.uploaderName }}</span>
-                <span class="upload-date">{{ formatTime(video.uploadDate) }}</span>
               </div>
             </div>
 
@@ -154,6 +153,7 @@
 
 <script setup lang="ts">
 import { useAppStore } from '~/stores/app'
+import { formatViews, formatTime } from '~/utils/formatters'
 
 // 使用状态管理
 const store = useAppStore()
@@ -161,15 +161,6 @@ const store = useAppStore()
 // 计算属性
 const historyVideos = computed(() => store.historyVideos)
 const isLoading = computed(() => store.isLoading)
-
-// 方法
-const formatViews = (views: number) => {
-  return store.formatViews(views)
-}
-
-const formatTime = (dateString: string) => {
-  return store.formatTime(dateString)
-}
 
 const goToVideoDetail = (videoId: number) => {
   store.addToHistory(videoId)
@@ -194,7 +185,7 @@ const refreshHistory = () => {
 }
 
 const clearAllHistory = () => {
-  if (confirm('确定要清空所有观看历史吗？此操作不可恢复。')) {
+  if (confirm('Are you sure you want to clear all watch history? This operation is irreversible.')) {
     store.clearHistory()
   }
 }
@@ -302,6 +293,7 @@ const clearAllHistory = () => {
 }
 
 .history-item {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 16px;
@@ -311,11 +303,13 @@ const clearAllHistory = () => {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
   cursor: pointer;
+  border: 1px solid var(--bilibili-border);
 }
 
 .history-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-8px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+  border-color: var(--bilibili-pink);
 }
 
 /* 序号 */
@@ -326,14 +320,14 @@ const clearAllHistory = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bilibili-gray);
+  background: #FF477B;
   border-radius: 50%;
 }
 
 .index-number {
   font-size: 16px;
   font-weight: 600;
-  color: var(--bilibili-text);
+  color: white;
 }
 
 /* 视频缩略图 */
@@ -469,9 +463,15 @@ const clearAllHistory = () => {
 
 /* 历史记录操作 */
 .history-actions {
-  flex-shrink: 0;
-  display: flex;
-  gap: 8px;
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.history-item:hover .history-actions {
+  opacity: 1;
 }
 
 .remove-history-btn {
@@ -479,18 +479,20 @@ const clearAllHistory = () => {
   height: 32px;
   border: none;
   border-radius: 50%;
-  background: var(--bilibili-gray);
-  color: var(--bilibili-text-secondary);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .remove-history-btn:hover {
-  background: rgba(255, 0, 0, 0.1);
-  color: #ff4757;
+  background: rgba(255, 0, 0, 0.9);
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.4);
 }
 
 /* 响应式设计 */
@@ -508,58 +510,177 @@ const clearAllHistory = () => {
   }
 
   .actions-section {
-    flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
   }
 
   .actions-left,
   .actions-right {
+    flex: 1;
     justify-content: center;
+  }
+
+  .history-list {
+    gap: 20px;
   }
 
   .history-item {
     flex-direction: column;
     align-items: stretch;
     gap: 12px;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .history-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
   }
 
   .history-index {
     align-self: flex-start;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    background: #FF477B;
+    color: white;
   }
 
   .video-thumbnail {
     width: 100%;
-    height: 120px;
+    height: 140px;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .video-thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .history-item:hover .video-thumbnail img {
+    transform: scale(1.05);
+  }
+
+  .video-info {
+    padding: 0;
   }
 
   .video-title {
-    font-size: 14px;
-    height: 40px;
+    font-size: 16px;
+    height: auto;
+    margin-bottom: 16px;
+    font-weight: 600;
   }
 
   .video-stats {
-    font-size: 10px;
-    gap: 12px;
+    font-size: 12px;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+
+  .video-uploader {
+    font-size: 14px;
   }
 
   .history-actions {
-    align-self: flex-end;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+  }
+
+  .remove-history-btn {
+    width: 36px;
+    height: 36px;
+    background: #666666;
+    color: white;
+    border: none;
+    box-shadow: none;
+  }
+
+  .remove-history-btn:hover {
+    background: #ff4757;
+    transform: scale(1.1);
+    box-shadow: none;
   }
 }
 
 @media (max-width: 480px) {
   .history-item {
-    padding: 12px;
+    padding: 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    border-radius: 20px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  .history-item:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  }
+
+  .history-index {
+    align-self: flex-start;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    background: #FF477B;
+    color: white;
   }
 
   .video-thumbnail {
-    height: 100px;
+    width: 100%;
+    height: 160px;
+    border-radius: 16px;
   }
 
   .video-title {
-    font-size: 12px;
-    height: 32px;
+    font-size: 18px;
+    height: auto;
+    margin-bottom: 20px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .video-stats {
+    font-size: 14px;
+    gap: 20px;
+    margin-bottom: 16px;
+  }
+
+  .video-uploader {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .history-actions {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    opacity: 1;
+  }
+
+  .remove-history-btn {
+    width: 40px;
+    height: 40px;
+    background: #dddbdb;
+    color: white;
+    font-size: 18px;
+    border: none;
+    box-shadow: none;
+  }
+
+  .remove-history-btn:hover {
+    background: #ff4757;
+    transform: scale(1.15);
+    box-shadow: none;
   }
 }
 </style>

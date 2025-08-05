@@ -170,10 +170,10 @@
           <h2>8. Contact Us</h2>
           <p>If you have any questions about our use of cookies or this Cookie Policy, please contact us at:</p>
           <div class="contact-info">
-            <p><strong>Email:</strong> privacy@videohub.com</p>
+            <p><strong>Email:</strong> privacy@videoh5.com</p>
             <p><strong>Address:</strong> 1234 Innovation Drive, Tech City, TC 12345</p>
             <p><strong>Phone:</strong> +1 (555) 123-4567</p>
-            <p><strong>Data Protection Officer:</strong> dpo@videohub.com</p>
+            <p><strong>Data Protection Officer:</strong> dpo@videoh5.com</p>
           </div>
         </div>
 
@@ -199,9 +199,9 @@
 <script setup lang="ts">
 // 设置页面标题
 useHead({
-  title: 'Cookie Policy - VideoHub',
+        title: 'Cookie Policy - VideoH5',
   meta: [
-    { name: 'description', content: 'VideoHub Cookie Policy - Learn about how we use cookies and how to manage them.' }
+          { name: 'description', content: 'VideoH5 Cookie Policy - Learn about how we use cookies and how to manage them.' }
   ]
 })
 </script>

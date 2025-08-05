@@ -66,6 +66,11 @@
           <button
             class="category-item"
             :class="{ active: currentCategory === 'All' }"
+            :style="{
+              backgroundColor: currentCategory === 'All' ? '#667eea' : '#f8f9fa',
+              color: currentCategory === 'All' ? 'white' : '#333',
+              borderColor: '#667eea'
+            }"
             @click="setCategory('All')"
           >
             All
@@ -78,6 +83,11 @@
               active: currentCategory === category.name,
               highlighted: category.isHighlighted
             }"
+            :style="{
+              backgroundColor: currentCategory === category.name ? category.color : `${category.color}15`,
+              color: currentCategory === category.name ? 'white' : category.color,
+              borderColor: category.color
+            }"
             @click="setCategory(category.name)"
           >
             <span class="category-icon">{{ category.icon }}</span>
@@ -86,11 +96,94 @@
         </div>
       </section>
 
+      <!-- 推荐视频区域 (仅在All分类时显示) -->
+      <section v-if="currentCategory === 'All'" class="recommended-section">
+        <div class="recommended-categories">
+          <div
+            v-for="(videos, category) in recommendedVideos"
+            :key="category"
+            class="category-section"
+          >
+            <div class="category-header">
+              <div class="category-info">
+                <h3 class="category-title">{{ category }}</h3>
+              </div>
+              <button
+                class="view-all-btn"
+                @click="setCategory(category)"
+              >
+                <span>View All</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9,18 15,12 9,6"></polyline>
+                </svg>
+              </button>
+            </div>
+
+            <div class="category-videos-grid">
+              <div
+                v-for="video in videos"
+                :key="video.id"
+                class="video-card-premium"
+                @click="goToVideoDetail(video.id)"
+              >
+                <!-- 视频缩略图 -->
+                <div class="video-thumbnail-premium">
+                  <img
+                    v-lazy="video.thumbnailUrl"
+                    :alt="video.title"
+                    class="lazy-placeholder"
+                  />
+                  <!-- 视频时长 -->
+                  <div class="video-duration-premium">{{ video.duration }}</div>
+
+                  <!-- 播放按钮覆盖层 -->
+                  <div class="video-play-overlay-premium">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="5,3 19,12 5,21"></polygon>
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- 视频信息 -->
+                <div class="video-info-premium">
+                  <h4 class="video-title-premium text-ellipsis-2">{{ video.title }}</h4>
+                  <div class="video-meta-premium">
+                    <div class="video-stats-premium">
+                      <span class="video-views-premium">{{ formatViews(video.views) }} views</span>
+                    </div>
+                    <div class="video-actions-premium">
+                      <button
+                        class="action-btn"
+                        :class="{ active: video.isLiked }"
+                        @click.stop="toggleLike(video.id)"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                      </button>
+                      <button
+                        class="action-btn"
+                        :class="{ active: video.isCollected }"
+                        @click.stop="toggleFavorite(video.id)"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"></polygon>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- 视频网格 -->
       <section class="videos-section">
         <div class="section-header">
           <h2 class="section-title">
-            {{ currentCategory === 'All' ? 'Recommended Videos' : currentCategory }}
+            {{ currentCategory === 'All' ? 'All Videos' : currentCategory }}
           </h2>
           <div class="section-actions">
             <button class="btn btn-secondary" @click="refreshVideos">
@@ -182,20 +275,38 @@
 
               <div class="video-uploader">
                 <span class="uploader-name">{{ video.uploaderName }}</span>
-                <span class="upload-date">{{ formatTime(video.uploadDate) }}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- 空状态 -->
+        <!-- Pagination Info -->
+        <div v-if="displayVideos && displayVideos.length > 0" class="pagination-info">
+          <div class="pagination-stats">
+            <span>Showing {{ displayVideos.length }} / {{ currentCategoryVideoCount }} videos</span>
+            <span v-if="totalPages > 1">Page {{ currentPage }} / {{ totalPages }}</span>
+          </div>
+        </div>
+
+        <!-- Load More Button -->
+        <div v-if="hasMoreVideos && displayVideos && displayVideos.length > 0" class="load-more-container">
+          <button @click="loadMoreVideos" class="load-more-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              <path d="M9 12l2 2 4-4"></path>
+            </svg>
+            Load More Videos
+          </button>
+        </div>
+
+        <!-- Empty State -->
         <div v-if="!isLoading && (!displayVideos || displayVideos.length === 0)" class="empty-state">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="8" y1="12" x2="16" y2="12"></line>
           </svg>
-                     <h3>No Videos</h3>
-           <p>No videos available in this category</p>
+          <h3>No Videos</h3>
+          <p>No videos available in this category</p>
         </div>
       </section>
     </div>
@@ -219,9 +330,14 @@ const currentCategory = computed(() => store.currentCategory)
 const currentCarouselIndex = computed(() => store.currentCarouselIndex)
 const isLoading = computed(() => store.isLoading)
 const displayVideos = computed(() => {
-  const videos = store.filteredVideos
-  return videos || []
+  return store.paginatedVideos || []
 })
+
+const hasMoreVideos = computed(() => store.hasMore)
+const currentPage = computed(() => store.currentPage)
+const totalPages = computed(() => store.totalPages)
+const currentCategoryVideoCount = computed(() => store.currentCategoryVideoCount)
+const recommendedVideos = computed(() => store.recommendedVideos)
 
 // 方法
 const setCategory = (category: string) => {
@@ -257,12 +373,15 @@ const refreshVideos = () => {
   store.initializeData()
 }
 
-const formatViews = (views: number) => {
-  return store.formatViews(views)
+import { formatViews, formatTime } from '~/utils/formatters'
+
+// 分页相关方法
+const loadMoreVideos = () => {
+  store.loadMoreVideos()
 }
 
-const formatTime = (dateString: string) => {
-  return store.formatTime(dateString)
+const resetPagination = () => {
+  store.resetPagination()
 }
 
 // 自动轮播
@@ -462,8 +581,8 @@ onUnmounted(() => {
 .category-nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 20px 0;
+  gap: 16px;
+  padding: 24px 0;
   border-bottom: 1px solid var(--bilibili-border);
 }
 
@@ -750,13 +869,27 @@ onUnmounted(() => {
   }
 
   .category-nav {
-    padding: 16px 0;
-    gap: 8px;
+    padding: 20px 0;
+    gap: 17px;
   }
 
   .category-item {
-    font-size: 12px;
-    padding: 8px 12px;
+    font-size: 18px;
+    padding: 20px 28px;
+    border-radius: 40px;
+    min-height: 72px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .category-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .category-icon {
+    font-size: 24px;
   }
 
   .video-grid {
@@ -796,6 +929,29 @@ onUnmounted(() => {
   .carousel-indicators {
     bottom: 16px;
     right: 20px;
+  }
+
+  .category-item {
+    font-size: 20px;
+    padding: 24px 32px;
+    border-radius: 48px;
+    min-height: 80px;
+    font-weight: 700;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  }
+
+  .category-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+  }
+
+  .category-nav {
+    padding: 14px 0;
+    gap: 15px;
+  }
+
+  .category-icon {
+    font-size: 28px;
   }
 }
 </style>

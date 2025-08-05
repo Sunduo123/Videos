@@ -116,22 +116,31 @@
 
 <script setup lang="ts">
 import { useAppStore } from '~/stores/app'
+import { formatViews, formatTime } from '~/utils/formatters'
 
 // 使用状态管理
 const store = useAppStore()
+const route = useRoute()
 
 // 计算属性
 const searchResults = computed(() => store.searchResults)
 const isLoading = computed(() => store.isLoading)
 
-// 方法
-const formatViews = (views: number) => {
-  return store.formatViews(views)
-}
+// 处理搜索查询
+const searchQuery = computed(() => {
+  const query = route.query.q
+  if (query && typeof query === 'string') {
+    store.setSearchQuery(query)
+  }
+  return query
+})
 
-const formatTime = (dateString: string) => {
-  return store.formatTime(dateString)
-}
+// 组件挂载时处理搜索查询
+onMounted(() => {
+  if (!route.query.q && store.searchQuery) {
+    // 保持当前搜索查询
+  }
+})
 
 const goToVideoDetail = (videoId: number) => {
   store.addToHistory(videoId)

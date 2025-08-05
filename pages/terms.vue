@@ -10,14 +10,14 @@
 
         <div class="legal-section">
           <h2>1. Acceptance of Terms</h2>
-          <p>By accessing and using VideoHub ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
+          <p>By accessing and using VideoH5 ("the Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.</p>
 
-          <p>These Terms of Service ("Terms") govern your use of our website located at videohub.com (together or individually "Service") and form a binding contractual agreement between you, the user of the Service, and us, VideoHub.</p>
+                      <p>These Terms of Service ("Terms") govern your use of our website located at videoh5.com (together or individually "Service") and form a binding contractual agreement between you, the user of the Service, and us, VideoH5.</p>
         </div>
 
         <div class="legal-section">
           <h2>2. Description of Service</h2>
-          <p>VideoHub is a comprehensive video sharing and streaming platform that allows users to:</p>
+                      <p>VideoH5 is a comprehensive video sharing and streaming platform that allows users to:</p>
           <ul>
             <li>Upload, share, and stream video content</li>
             <li>Discover and watch videos from creators worldwide</li>
@@ -60,7 +60,7 @@
 
         <div class="legal-section">
           <h2>6. Intellectual Property Rights</h2>
-          <p>The Service and its original content, features, and functionality are and will remain the exclusive property of VideoHub and its licensors. The Service is protected by copyright, trademark, and other laws. Our trademarks and trade dress may not be used in connection with any product or service without our prior written consent.</p>
+            <p>The Service and its original content, features, and functionality are and will remain the exclusive property of VideoH5 and its licensors. The Service is protected by copyright, trademark, and other laws. Our trademarks and trade dress may not be used in connection with any product or service without our prior written consent.</p>
         </div>
 
         <div class="legal-section">
@@ -77,7 +77,7 @@
 
         <div class="legal-section">
           <h2>9. Limitation of Liability</h2>
-          <p>In no event shall VideoHub, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from:</p>
+            <p>In no event shall VideoH5, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from:</p>
           <ul>
             <li>Your use or inability to use the Service</li>
             <li>Any unauthorized access to or use of our servers and/or any personal information stored therein</li>
@@ -100,7 +100,7 @@
           <h2>12. Contact Information</h2>
           <p>If you have any questions about these Terms of Service, please contact us at:</p>
           <div class="contact-info">
-            <p><strong>Email:</strong> legal@videohub.com</p>
+            <p><strong>Email:</strong> legal@videoh5.com</p>
             <p><strong>Address:</strong> 1234 Innovation Drive, Tech City, TC 12345</p>
             <p><strong>Phone:</strong> +1 (555) 123-4567</p>
           </div>
@@ -131,9 +131,9 @@
 <script setup lang="ts">
 // 设置页面标题
 useHead({
-  title: 'Terms of Service - VideoHub',
+        title: 'Terms of Service - VideoH5',
   meta: [
-    { name: 'description', content: 'VideoHub Terms of Service - Learn about our terms and conditions for using our video sharing platform.' }
+          { name: 'description', content: 'VideoH5 Terms of Service - Learn about our terms and conditions for using our video sharing platform.' }
   ]
 })
 </script>

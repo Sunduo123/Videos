@@ -5,7 +5,7 @@
       <div class="header-content">
         <!-- Logo -->
         <NuxtLink to="/" class="logo">
-          VideoHub
+          VideoH5
         </NuxtLink>
 
         <!-- 搜索框 -->
@@ -15,7 +15,7 @@
             @keyup.enter="handleSearch"
             type="text"
             class="search-input"
-            placeholder="Search videos, creators, or topics..."
+            :placeholder="isMobile ? 'Search...' : 'Search videos, creators, or topics...'"
             style="color: #18191c;"
             data-testid="main-search-input"
           />
@@ -69,18 +69,18 @@
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"></polygon>
               </svg>
-              <span class="brand-name">VideoHub</span>
+              <span class="brand-name">VideoH5</span>
             </div>
             <p class="brand-description">
               Discover amazing video content, connect creators with audiences, and build a premium video sharing platform
             </p>
             <div class="social-links">
-              <a href="#" class="social-link" title="微信">
+              <a href="#" class="social-link" title="WeChat">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M8.5,13.5A1.5,1.5 0 0,1 7,12A1.5,1.5 0 0,1 8.5,10.5A1.5,1.5 0 0,1 10,12A1.5,1.5 0 0,1 8.5,13.5M15.5,13.5A1.5,1.5 0 0,1 14,12A1.5,1.5 0 0,1 15.5,10.5A1.5,1.5 0 0,1 17,12A1.5,1.5 0 0,1 15.5,13.5M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"/>
                 </svg>
               </a>
-              <a href="#" class="social-link" title="微博">
+              <a href="#" class="social-link" title="Weibo">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M16.5,6.75C17.5,6.75 18.25,7.5 18.25,8.5C18.25,9.5 17.5,10.25 16.5,10.25C15.5,10.25 14.75,9.5 14.75,8.5C14.75,7.5 15.5,6.75 16.5,6.75M7.5,6.75C8.5,6.75 9.25,7.5 9.25,8.5C9.25,9.5 8.5,10.25 7.5,10.25C6.5,10.25 5.75,9.5 5.75,8.5C5.75,7.5 6.5,6.75 7.5,6.75M12,18C9.5,18 7.5,16 7.5,13.5H16.5C16.5,16 14.5,18 12,18Z"/>
                 </svg>
@@ -139,7 +139,7 @@
         <div class="footer-bottom">
           <div class="footer-bottom-content">
             <div class="copyright">
-              <p>&copy; 2024 VideoHub. All rights reserved.</p>
+              <p>&copy; 2024 VideoH5. All rights reserved.</p>
               <p>Let videos connect the world, let creativity have more value</p>
             </div>
             <div class="legal-links">
@@ -171,11 +171,16 @@ const store = useAppStore()
 const searchQuery = ref('')
 const isMobile = ref(false)
 
+// 同步搜索查询状态
+watch(() => store.searchQuery, (newQuery: string) => {
+  searchQuery.value = newQuery
+})
+
 // 方法
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
     store.setSearchQuery(searchQuery.value)
-    navigateTo('/search')
+    navigateTo(`/search?q=${encodeURIComponent(searchQuery.value)}`)
   }
 }
 

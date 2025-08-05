@@ -73,6 +73,11 @@ export const useAppStore = defineStore('app', {
     searchQuery: '',
     isLoading: false,
 
+    // 分页相关
+    currentPage: 1,
+    videosPerPage: 20,
+    hasMoreVideos: true,
+
     // 用户行为
     favorites: [] as number[], // 收藏的视频ID
     history: [] as number[], // 观看历史的视频ID
@@ -98,88 +103,151 @@ export const useAppStore = defineStore('app', {
       return state.videos.filter(video => video.category === state.currentCategory)
     },
 
-    // 获取搜索结果
-    searchResults: (state) => {
-      if (!state.videos || state.videos.length === 0) {
-        return []
+    // 获取分页后的视频
+    paginatedVideos: (state) => {
+      const filtered = state.currentCategory === 'All'
+        ? state.videos
+        : state.videos.filter(video => video.category === state.currentCategory)
+
+      const startIndex = (state.currentPage - 1) * state.videosPerPage
+      const endIndex = startIndex + state.videosPerPage
+
+      return filtered.slice(0, endIndex)
+    },
+
+    // 检查是否还有更多视频
+    hasMore: (state) => {
+      const filtered = state.currentCategory === 'All'
+        ? state.videos
+        : state.videos.filter(video => video.category === state.currentCategory)
+
+      return state.currentPage * state.videosPerPage < filtered.length
+    },
+
+    // 获取总页数
+    totalPages: (state) => {
+      const filtered = state.currentCategory === 'All'
+        ? state.videos
+        : state.videos.filter(video => video.category === state.currentCategory)
+
+      return Math.ceil(filtered.length / state.videosPerPage)
+    },
+
+    // 获取当前分类的视频总数
+    currentCategoryVideoCount: (state) => {
+      if (state.currentCategory === 'All') {
+        return state.videos.length
       }
-      if (!state.searchQuery.trim()) {
-        return state.videos
-      }
-      const query = state.searchQuery.toLowerCase()
-      return state.videos.filter(video =>
-        video.title.toLowerCase().includes(query) ||
-        video.description.toLowerCase().includes(query) ||
-        video.uploaderName.toLowerCase().includes(query) ||
-        video.tags.some(tag => tag.toLowerCase().includes(query))
-      )
+      return state.videos.filter(video => video.category === state.currentCategory).length
+    },
+
+    // 获取推荐视频（按类别分组，每个类别随机12个视频）
+    recommendedVideos: (state) => {
+      const categories = ['Automotive', 'AI', 'Finance', 'Cybersecurity', 'Commerce and Industry', 'Motorcycles', 'Home Design', 'Luxury Travel', 'Dentistry', 'Elderly Care']
+      const recommended: Record<string, Video[]> = {}
+
+      categories.forEach(category => {
+        const categoryVideos = state.videos.filter(video => video.category === category)
+        if (categoryVideos.length > 0) {
+          // 使用固定的排序方式，基于视频ID进行排序，确保状态一致性
+          const sorted = [...categoryVideos].sort((a, b) => {
+            // 使用视频ID的哈希值来创建伪随机排序
+            const hashA = (a.id * 9301 + 49297) % 233280
+            const hashB = (b.id * 9301 + 49297) % 233280
+            return hashA - hashB
+          })
+          recommended[category] = sorted.slice(0, 12)
+        }
+      })
+
+      return recommended
     },
 
     // 获取收藏的视频
     favoriteVideos: (state) => {
-      if (!state.videos || state.videos.length === 0) {
-        return []
-      }
-      return state.videos.filter(video => state.favorites.includes(video.id))
+      const favorites = state.videos.filter(video => state.favorites.includes(video.id))
+      console.log('Favorite videos:', {
+        favorites: state.favorites,
+        videos: state.videos.length,
+        result: favorites.length
+      })
+      return favorites
     },
 
-    // 获取观看历史的视频
+    // 获取历史记录的视频
     historyVideos: (state) => {
-      if (!state.videos || state.videos.length === 0) {
-        return []
-      }
-      return state.videos.filter(video => state.history.includes(video.id))
+      const history = state.videos.filter(video => state.history.includes(video.id))
+      console.log('History videos:', {
+        history: state.history,
+        videos: state.videos.length,
+        result: history.length
+      })
+      return history
     },
 
-    // 获取点赞的视频
-    likedVideosList: (state) => {
-      if (!state.videos || state.videos.length === 0) {
+    // 获取搜索结果
+    searchResults: (state) => {
+      if (!state.searchQuery || state.searchQuery.trim() === '') {
         return []
       }
-      return state.videos.filter(video => state.likedVideos.includes(video.id))
+
+      const query = state.searchQuery.toLowerCase().trim()
+      const results = state.videos.filter(video => {
+        return video.title.toLowerCase().includes(query) ||
+               video.description.toLowerCase().includes(query) ||
+               video.category.toLowerCase().includes(query) ||
+               video.uploaderName.toLowerCase().includes(query) ||
+               video.tags.some(tag => tag.toLowerCase().includes(query))
+      })
+
+      console.log('Search results:', {
+        query: state.searchQuery,
+        totalVideos: state.videos.length,
+        results: results.length
+      })
+
+      return results
     },
 
-         // 格式化观看次数
-     formatViews: () => (views: number) => {
-       if (!views || views === 0) {
-         return '0'
-       }
-       if (views >= 1000000) {
-         return (views / 1000000).toFixed(1) + 'M'
-       } else if (views >= 1000) {
-         return (views / 1000).toFixed(1) + 'K'
-       }
-       return views.toString()
-     },
+    // 格式化观看次数
+    formatViews: () => (views: number) => {
+      if (views >= 1000000) {
+        return (views / 1000000).toFixed(1) + 'M'
+      } else if (views >= 1000) {
+        return (views / 1000).toFixed(1) + 'K'
+      }
+      return views.toString()
+    },
 
-         // 格式化时间
-     formatTime: () => (dateString: string) => {
-       if (!dateString) {
-         return 'Unknown'
-       }
-       try {
-         const date = new Date(dateString)
-         const now = new Date()
-         const diff = now.getTime() - date.getTime()
-         const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+    // 格式化时间
+    formatTime: () => (dateString: string) => {
+      try {
+        const date = new Date(dateString)
+        const now = new Date()
+        const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
-         if (days === 0) {
-           return 'Today'
-         } else if (days === 1) {
-           return 'Yesterday'
-         } else if (days < 7) {
-           return `${days} days ago`
-         } else if (days < 30) {
-           return `${Math.floor(days / 7)} weeks ago`
-         } else if (days < 365) {
-           return `${Math.floor(days / 30)} months ago`
-         } else {
-           return `${Math.floor(days / 365)} years ago`
-         }
-       } catch (error) {
-         return 'Unknown'
-       }
-     }
+        if (diffInSeconds < 60) {
+          return 'Just now'
+        } else if (diffInSeconds < 3600) {
+          const minutes = Math.floor(diffInSeconds / 60)
+          return `${minutes} minute${minutes > 1 ? 's' : ''} ago`
+        } else if (diffInSeconds < 86400) {
+          const hours = Math.floor(diffInSeconds / 3600)
+          return `${hours} hour${hours > 1 ? 's' : ''} ago`
+        } else if (diffInSeconds < 2592000) {
+          const days = Math.floor(diffInSeconds / 86400)
+          return `${days} day${days > 1 ? 's' : ''} ago`
+        } else if (diffInSeconds < 31536000) {
+          const months = Math.floor(diffInSeconds / 2592000)
+          return `${months} month${months > 1 ? 's' : ''} ago`
+        } else {
+          const years = Math.floor(diffInSeconds / 31536000)
+          return `${years} year${years > 1 ? 's' : ''} ago`
+        }
+      } catch (error) {
+        return 'Unknown'
+      }
+    }
   },
 
   actions: {
@@ -213,7 +281,11 @@ export const useAppStore = defineStore('app', {
         this.carousel = carouselData.carousel
         this.comments = [] // 暂时使用空数组
 
-        // 从localStorage恢复用户状态
+        // 重置分页状态
+        this.currentPage = 1
+        this.hasMoreVideos = true
+
+        // 从localStorage恢复用户状态（在视频数据加载完成后）
         this.loadUserState()
       } catch (error) {
         console.error('Failed to load data:', error)
@@ -225,11 +297,37 @@ export const useAppStore = defineStore('app', {
     // 设置当前分类
     setCategory(category: string) {
       this.currentCategory = category
+      // 切换分类时重置分页
+      this.currentPage = 1
+      this.hasMoreVideos = true
     },
 
     // 设置搜索查询
     setSearchQuery(query: string) {
       this.searchQuery = query
+      // 搜索时重置分页
+      this.currentPage = 1
+      this.hasMoreVideos = true
+    },
+
+    // 加载更多视频
+    loadMoreVideos() {
+      if (this.hasMore) {
+        this.currentPage++
+        this.hasMoreVideos = this.hasMore
+      }
+    },
+
+    // 重置分页
+    resetPagination() {
+      this.currentPage = 1
+      this.hasMoreVideos = true
+    },
+
+    // 设置每页视频数量
+    setVideosPerPage(count: number) {
+      this.videosPerPage = count
+      this.resetPagination()
     },
 
     // 切换视频点赞状态
@@ -262,7 +360,13 @@ export const useAppStore = defineStore('app', {
         } else {
           this.favorites = this.favorites.filter(id => id !== videoId)
         }
+        console.log(`Toggle favorite for video ${videoId}:`, {
+          isCollected: video.isCollected,
+          favorites: this.favorites
+        })
         this.saveUserState()
+      } else {
+        console.warn(`Video with ID ${videoId} not found`)
       }
     },
 
@@ -274,17 +378,18 @@ export const useAppStore = defineStore('app', {
         if (this.history.length > 100) {
           this.history = this.history.slice(0, 100)
         }
+        console.log(`Added video ${videoId} to history:`, this.history)
         this.saveUserState()
       }
     },
 
-    // 清空观看历史
+    // 清除观看历史
     clearHistory() {
       this.history = []
       this.saveUserState()
     },
 
-    // 清空收藏
+    // 清除收藏
     clearFavorites() {
       this.favorites = []
       this.videos.forEach(video => {
@@ -308,14 +413,13 @@ export const useAppStore = defineStore('app', {
       this.currentCarouselIndex = index
     },
 
-    // 自动轮播
     startAutoCarousel() {
       setInterval(() => {
         this.nextCarousel()
-      }, 2000)
+      }, 3000)
     },
 
-    // 响应式处理
+    // 响应式控制
     setMobile(isMobile: boolean) {
       this.isMobile = isMobile
     },
@@ -326,73 +430,65 @@ export const useAppStore = defineStore('app', {
 
     // 用户状态持久化
     saveUserState() {
-             if (typeof window !== 'undefined') {
-         localStorage.setItem('videohub-favorites', JSON.stringify(this.favorites))
-         localStorage.setItem('videohub-history', JSON.stringify(this.history))
-         localStorage.setItem('videohub-liked', JSON.stringify(this.likedVideos))
-       }
+      if (process.client) {
+        const userState = {
+          favorites: this.favorites,
+          history: this.history,
+          likedVideos: this.likedVideos
+        }
+        localStorage.setItem('userState', JSON.stringify(userState))
+
+        console.log('User state saved:', userState)
+      }
     },
 
     loadUserState() {
-      if (typeof window !== 'undefined') {
-                 try {
-           const favorites = localStorage.getItem('videohub-favorites')
-           const history = localStorage.getItem('videohub-history')
-           const liked = localStorage.getItem('videohub-liked')
+      if (process.client) {
+        try {
+          const savedState = localStorage.getItem('userState')
+          if (savedState) {
+            const state = JSON.parse(savedState)
+            this.favorites = state.favorites || []
+            this.history = state.history || []
+            this.likedVideos = state.likedVideos || []
 
-          if (favorites) {
-            this.favorites = JSON.parse(favorites)
-          }
-          if (history) {
-            this.history = JSON.parse(history)
-          }
-          if (liked) {
-            this.likedVideos = JSON.parse(liked)
-          }
+            // 恢复视频状态
+            this.videos.forEach(video => {
+              video.isLiked = this.likedVideos.includes(video.id)
+              video.isCollected = this.favorites.includes(video.id)
+            })
 
-          // 同步视频状态
-          this.videos.forEach(video => {
-            video.isLiked = this.likedVideos.includes(video.id)
-            video.isCollected = this.favorites.includes(video.id)
-          })
+            console.log('User state loaded:', {
+              favorites: this.favorites,
+              history: this.history,
+              likedVideos: this.likedVideos
+            })
+          }
         } catch (error) {
           console.error('Failed to load user state:', error)
         }
       }
     },
 
-    // 模拟登录
+    // 用户认证
     login(user: User) {
       this.user = user
       this.isLoggedIn = true
-             if (typeof window !== 'undefined') {
-         localStorage.setItem('videohub-user', JSON.stringify(user))
-       }
+      this.saveUserState()
     },
 
-    // 登出
     logout() {
       this.user = null
       this.isLoggedIn = false
-             if (typeof window !== 'undefined') {
-         localStorage.removeItem('videohub-user')
-       }
+      this.favorites = []
+      this.history = []
+      this.likedVideos = []
+      this.saveUserState()
     },
 
-    // 检查登录状态
     checkLoginStatus() {
-      if (typeof window !== 'undefined') {
-                 const userStr = localStorage.getItem('videohub-user')
-        if (userStr) {
-          try {
-            const user = JSON.parse(userStr)
-            this.user = user
-            this.isLoggedIn = true
-          } catch (error) {
-            console.error('Failed to parse user data:', error)
-          }
-        }
-      }
+      // 这里可以添加检查登录状态的逻辑
+      return this.isLoggedIn
     }
   }
 })

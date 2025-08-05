@@ -1,49 +1,33 @@
-import fs from 'fs'
-import path from 'path'
-import { execSync } from 'child_process'
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
-console.log('🧹 开始清理Nuxt开发缓存...')
+console.log('🧹 清理 VideoH5 开发缓存...');
 
-// 要清理的目录和文件
-const cleanPaths = [
-  '.nuxt',
-  '.output',
-  'node_modules/.cache',
-  'node_modules/.vite'
-]
+// 清理缓存目录
+const cacheDirs = ['.nuxt', '.output', 'node_modules/.cache', 'node_modules/.vite'];
 
-// 清理函数
-function cleanDirectory(dirPath) {
-  if (fs.existsSync(dirPath)) {
+cacheDirs.forEach(dir => {
+  if (fs.existsSync(dir)) {
+    console.log(`🗑️  删除: ${dir}`);
     try {
-      fs.rmSync(dirPath, { recursive: true, force: true })
-      console.log(`✅ 已清理: ${dirPath}`)
+      fs.rmSync(dir, { recursive: true, force: true });
+      console.log(`✅ 已删除: ${dir}`);
     } catch (error) {
-      console.log(`⚠️  清理失败: ${dirPath} - ${error.message}`)
+      console.log(`⚠️  删除失败 ${dir}:`, error.message);
     }
   } else {
-    console.log(`ℹ️  目录不存在: ${dirPath}`)
+    console.log(`ℹ️  不存在: ${dir}`);
   }
-}
+});
 
-// 执行清理
-cleanPaths.forEach(cleanDirectory)
-
-// 清理npm缓存
+// 终止所有 node 进程
 try {
-  execSync('npm cache clean --force', { stdio: 'inherit' })
-  console.log('✅ 已清理npm缓存')
+  console.log('🛑 终止现有 Node.js 进程...');
+  execSync('taskkill /f /im node.exe', { stdio: 'ignore' });
+  console.log('✅ 进程已终止');
 } catch (error) {
-  console.log('⚠️  npm缓存清理失败')
+  console.log('ℹ️  没有运行中的 Node.js 进程');
 }
 
-// 重新安装依赖（可选）
-console.log('\n📦 重新安装依赖...')
-try {
-  execSync('npm install', { stdio: 'inherit' })
-  console.log('✅ 依赖重新安装完成')
-} catch (error) {
-  console.log('⚠️  依赖重新安装失败')
-}
-
-console.log('\n🎉 清理完成！现在可以运行 npm run dev 了') 
+console.log('✨ 清理完成！');
