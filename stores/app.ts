@@ -73,10 +73,7 @@ export const useAppStore = defineStore('app', {
     searchQuery: '',
     isLoading: false,
 
-    // 分页相关
-    currentPage: 1,
-    videosPerPage: 20,
-    hasMoreVideos: true,
+    // 移除分页相关状态
 
     // 用户行为
     favorites: [] as number[], // 收藏的视频ID
@@ -88,7 +85,10 @@ export const useAppStore = defineStore('app', {
 
     // 响应式状态
     isMobile: false,
-    sidebarOpen: false
+    sidebarOpen: false,
+
+    // 类别视频随机种子
+    categoryShuffleSeeds: {} as Record<string, number>
   }),
 
   getters: {
@@ -97,40 +97,52 @@ export const useAppStore = defineStore('app', {
       if (!state.videos || state.videos.length === 0) {
         return []
       }
-      if (state.currentCategory === 'All') {
-        return state.videos
+
+      let videos = state.currentCategory === 'All'
+        ? state.videos
+        : state.videos.filter(video => video.category === state.currentCategory)
+
+      // 如果有该类别的随机种子，应用打乱排序
+      const seed = state.categoryShuffleSeeds[state.currentCategory]
+      if (seed) {
+        videos = [...videos].sort((a, b) => {
+          const hashA = ((a.id * 9301 + 49297) * seed) % 233280
+          const hashB = ((b.id * 9301 + 49297) * seed) % 233280
+          return hashA - hashB
+        })
       }
-      return state.videos.filter(video => video.category === state.currentCategory)
+
+      return videos
     },
 
-    // 获取分页后的视频
+        // 获取所有视频（无分页）
     paginatedVideos: (state) => {
-      const filtered = state.currentCategory === 'All'
+      let filtered = state.currentCategory === 'All'
         ? state.videos
         : state.videos.filter(video => video.category === state.currentCategory)
 
-      const startIndex = (state.currentPage - 1) * state.videosPerPage
-      const endIndex = startIndex + state.videosPerPage
+      // 如果有该类别的随机种子，应用打乱排序
+      const seed = state.categoryShuffleSeeds[state.currentCategory]
+      if (seed) {
+        filtered = [...filtered].sort((a, b) => {
+          const hashA = ((a.id * 9301 + 49297) * seed) % 233280
+          const hashB = ((b.id * 9301 + 49297) * seed) % 233280
+          return hashA - hashB
+        })
+      }
 
-      return filtered.slice(0, endIndex)
+      // 返回所有视频，不进行分页
+      return filtered
     },
 
-    // 检查是否还有更多视频
+    // 检查是否还有更多视频（无分页时始终返回false）
     hasMore: (state) => {
-      const filtered = state.currentCategory === 'All'
-        ? state.videos
-        : state.videos.filter(video => video.category === state.currentCategory)
-
-      return state.currentPage * state.videosPerPage < filtered.length
+      return false
     },
 
-    // 获取总页数
+    // 获取总页数（无分页时始终返回1）
     totalPages: (state) => {
-      const filtered = state.currentCategory === 'All'
-        ? state.videos
-        : state.videos.filter(video => video.category === state.currentCategory)
-
-      return Math.ceil(filtered.length / state.videosPerPage)
+      return 1
     },
 
     // 获取当前分类的视频总数
@@ -149,11 +161,14 @@ export const useAppStore = defineStore('app', {
       categories.forEach(category => {
         const categoryVideos = state.videos.filter(video => video.category === category)
         if (categoryVideos.length > 0) {
-          // 使用固定的排序方式，基于视频ID进行排序，确保状态一致性
+          // 获取该类别的随机种子，如果没有则使用默认值
+          const seed = state.categoryShuffleSeeds[category] || 1
+
+          // 使用种子值来创建伪随机排序
           const sorted = [...categoryVideos].sort((a, b) => {
-            // 使用视频ID的哈希值来创建伪随机排序
-            const hashA = (a.id * 9301 + 49297) % 233280
-            const hashB = (b.id * 9301 + 49297) % 233280
+            // 使用视频ID和种子值的哈希值来创建伪随机排序
+            const hashA = ((a.id * 9301 + 49297) * seed) % 233280
+            const hashB = ((b.id * 9301 + 49297) * seed) % 233280
             return hashA - hashB
           })
           recommended[category] = sorted.slice(0, 12)
@@ -238,8 +253,8 @@ export const useAppStore = defineStore('app', {
           const days = Math.floor(diffInSeconds / 86400)
           return `${days} day${days > 1 ? 's' : ''} ago`
         } else if (diffInSeconds < 31536000) {
-          const months = Math.floor(diffInSeconds / 2592000)
-          return `${months} month${months > 1 ? 's' : ''} ago`
+          // 不显示几个月前，直接返回空字符串
+          return ''
         } else {
           const years = Math.floor(diffInSeconds / 31536000)
           return `${years} year${years > 1 ? 's' : ''} ago`
@@ -253,13 +268,18 @@ export const useAppStore = defineStore('app', {
   actions: {
     // 初始化数据
     async initializeData() {
+      // 如果数据已经加载且不是强制刷新，直接返回
+      if (this.videos.length > 0 && this.categories.length > 0 && this.carousel.length > 0) {
+        return
+      }
+
       this.isLoading = true
       try {
-        // 并行加载所有数据
+        // 并行加载所有数据，添加缓存控制
         const [videosRes, categoriesRes, carouselRes] = await Promise.all([
-          fetch('/data/youtube-videos/example-batch.json'),
-          fetch('/data/categories.json'),
-          fetch('/data/carousel.json')
+          fetch('/data/example-batch.json', { cache: 'force-cache' }),
+          fetch('/data/categories.json', { cache: 'force-cache' }),
+          fetch('/data/carousel.json', { cache: 'force-cache' })
         ])
 
         const [videosData, categoriesData, carouselData] = await Promise.all([
@@ -281,12 +301,10 @@ export const useAppStore = defineStore('app', {
         this.carousel = carouselData.carousel
         this.comments = [] // 暂时使用空数组
 
-        // 重置分页状态
-        this.currentPage = 1
-        this.hasMoreVideos = true
-
         // 从localStorage恢复用户状态（在视频数据加载完成后）
         this.loadUserState()
+
+        console.log(`Loaded ${this.videos.length} videos successfully`)
       } catch (error) {
         console.error('Failed to load data:', error)
       } finally {
@@ -294,40 +312,28 @@ export const useAppStore = defineStore('app', {
       }
     },
 
+    // 强制刷新数据
+    async forceRefreshData() {
+      // 清空现有数据
+      this.videos = []
+      this.categories = []
+      this.carousel = []
+      this.categoryShuffleSeeds = {}
+
+      // 重新加载数据
+      await this.initializeData()
+    },
+
     // 设置当前分类
     setCategory(category: string) {
       this.currentCategory = category
-      // 切换分类时重置分页
-      this.currentPage = 1
-      this.hasMoreVideos = true
+      // 移除分页重置逻辑
     },
 
     // 设置搜索查询
     setSearchQuery(query: string) {
       this.searchQuery = query
-      // 搜索时重置分页
-      this.currentPage = 1
-      this.hasMoreVideos = true
-    },
-
-    // 加载更多视频
-    loadMoreVideos() {
-      if (this.hasMore) {
-        this.currentPage++
-        this.hasMoreVideos = this.hasMore
-      }
-    },
-
-    // 重置分页
-    resetPagination() {
-      this.currentPage = 1
-      this.hasMoreVideos = true
-    },
-
-    // 设置每页视频数量
-    setVideosPerPage(count: number) {
-      this.videosPerPage = count
-      this.resetPagination()
+      // 移除分页重置逻辑
     },
 
     // 切换视频点赞状态
@@ -416,7 +422,7 @@ export const useAppStore = defineStore('app', {
     startAutoCarousel() {
       setInterval(() => {
         this.nextCarousel()
-      }, 3000)
+      }, 3002)
     },
 
     // 响应式控制
@@ -489,6 +495,24 @@ export const useAppStore = defineStore('app', {
     checkLoginStatus() {
       // 这里可以添加检查登录状态的逻辑
       return this.isLoggedIn
+    },
+
+            // 打乱指定类别的视频排序
+    shuffleCategoryVideos(category: string) {
+      // 生成新的随机种子
+      const newSeed = Math.floor(Math.random() * 10000) + 1
+      this.categoryShuffleSeeds = {
+        ...this.categoryShuffleSeeds,
+        [category]: newSeed
+      }
+
+      console.log(`Shuffled ${category} videos with seed:`, newSeed)
+    },
+
+    // 重置所有类别的视频排序
+    resetAllCategoryShuffle() {
+      this.categoryShuffleSeeds = {}
+      console.log('Reset all category shuffle seeds')
     }
   }
 })

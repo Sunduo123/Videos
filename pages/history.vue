@@ -30,15 +30,15 @@
         </div>
       </section>
 
-      <!-- 历史视频列表 -->
+      <!-- Watch History List -->
       <section class="history-section">
-        <!-- 加载状态 -->
+        <!-- Loading State -->
         <div v-if="isLoading" class="loading-container">
           <div class="loading"></div>
           <p>Loading history...</p>
         </div>
 
-        <!-- 空状态 -->
+        <!-- Empty State -->
         <div v-else-if="!historyVideos || historyVideos.length === 0" class="empty-state">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
@@ -51,7 +51,7 @@
           </NuxtLink>
         </div>
 
-        <!-- 视频列表 -->
+        <!-- Video List -->
         <div v-else class="history-list">
           <div
             v-for="(video, index) in historyVideos"
@@ -59,12 +59,12 @@
             class="history-item"
             @click="goToVideoDetail(video.id)"
           >
-            <!-- 序号 -->
+            <!-- Index -->
             <div class="history-index">
               <span class="index-number">{{ index + 1 }}</span>
             </div>
 
-            <!-- 视频缩略图 -->
+            <!-- Video Thumbnail -->
             <div class="video-thumbnail">
               <img
                 v-lazy="video.thumbnailUrl"
@@ -72,10 +72,10 @@
                 class="lazy-placeholder"
               />
 
-              <!-- 视频时长 -->
+              <!-- Video Duration -->
               <div class="video-duration">{{ video.duration }}</div>
 
-              <!-- 播放按钮 -->
+              <!-- Play Button -->
               <div class="video-play-overlay">
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polygon points="5,3 19,12 5,21"></polygon>
@@ -83,7 +83,7 @@
               </div>
             </div>
 
-            <!-- 视频信息 -->
+            <!-- Video Information -->
             <div class="video-info">
               <h3 class="video-title text-ellipsis-2">{{ video.title }}</h3>
 

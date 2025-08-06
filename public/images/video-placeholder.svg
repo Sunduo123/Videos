@@ -1,0 +1,8 @@
+<svg width="320" height="180" viewBox="0 0 320 180" xmlns="http://www.w3.org/2000/svg">
+  <!-- 简化的背景 -->
+  <rect width="320" height="180" fill="#f1f2f3" rx="6"/>
+
+  <!-- 简单的播放按钮 -->
+  <circle cx="160" cy="90" r="20" fill="rgba(0,0,0,0.1)"/>
+  <path d="M152 82 L152 98 L170 90 Z" fill="#ffffff" opacity="0.8"/>
+</svg>

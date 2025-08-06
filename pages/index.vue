@@ -1,6 +1,6 @@
 <template>
   <div class="home-page">
-    <!-- 网络状态提示 -->
+    <!-- Network Status Alert -->
     <div v-if="!isOnline" class="network-status">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M1 1l22 22"></path>
@@ -14,15 +14,48 @@
       <span>No internet connection</span>
     </div>
 
+    <!-- Refresh Toast -->
+    <div v-if="showRefreshToast" class="refresh-toast">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23,4 23,10 17,10"></polyline>
+        <polyline points="1,20 1,14 7,14"></polyline>
+        <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+      </svg>
+      <span>{{ refreshToastMessage }}</span>
+    </div>
+
     <div class="container">
-      <!-- 轮播图 -->
+      <!-- Carousel -->
       <section class="carousel-section">
-        <div class="carousel" ref="carouselRef">
+        <div
+          class="carousel"
+          ref="carouselRef"
+          @mousedown="startDrag"
+          @mousemove="onDrag"
+          @mouseup="endDrag"
+          @mouseleave="handleMouseLeave"
+          @touchstart="startTouch"
+          @touchmove="onTouch"
+          @touchend="endTouch"
+          @mouseenter="pauseAutoCarousel"
+        >
+          <!-- PC Carousel Control Buttons -->
+          <button v-if="!isMobile" class="carousel-control prev" @click="prevCarousel">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="15,18 9,12 15,6"></polyline>
+            </svg>
+          </button>
+          <button v-if="!isMobile" class="carousel-control next" @click="nextCarousel">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9,18 15,12 9,6"></polyline>
+            </svg>
+          </button>
           <div
             v-for="(item, index) in carousel"
             :key="item.id"
             class="carousel-item"
             :class="{ active: index === currentCarouselIndex }"
+            @click="handleCarouselClick(item)"
           >
             <img
               v-lazy="item.imageUrl"
@@ -35,7 +68,7 @@
             </div>
           </div>
 
-          <!-- 轮播图指示器 -->
+          <!-- Carousel Indicators -->
           <div class="carousel-indicators">
             <button
               v-for="(item, index) in carousel"
@@ -45,31 +78,19 @@
               @click="setCarouselIndex(index)"
             ></button>
           </div>
-
-          <!-- 轮播图控制按钮 -->
-          <button class="carousel-control prev" @click="prevCarousel">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="15,18 9,12 15,6"></polyline>
-            </svg>
-          </button>
-          <button class="carousel-control next" @click="nextCarousel">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="9,18 15,12 9,6"></polyline>
-            </svg>
-          </button>
         </div>
       </section>
 
-      <!-- 分类导航 -->
+      <!-- Category Navigation -->
       <section class="category-section">
         <div class="category-nav">
           <button
             class="category-item"
             :class="{ active: currentCategory === 'All' }"
             :style="{
-              backgroundColor: currentCategory === 'All' ? '#667eea' : '#f8f9fa',
-              color: currentCategory === 'All' ? 'white' : '#333',
-              borderColor: '#667eea'
+              backgroundColor: isMobile ? (currentCategory === 'All' ? '#f0f0f0' : 'white') : (currentCategory === 'All' ? '#667eea' : '#f8f9fa'),
+              color: isMobile ? (currentCategory === 'All' ? '#2c2c2c' : '#333') : (currentCategory === 'All' ? 'white' : '#333'),
+              borderColor: isMobile ? (currentCategory === 'All' ? '#d0d0d0' : '#e0e0e0') : '#667eea'
             }"
             @click="setCategory('All')"
           >
@@ -84,9 +105,9 @@
               highlighted: category.isHighlighted
             }"
             :style="{
-              backgroundColor: currentCategory === category.name ? category.color : `${category.color}15`,
-              color: currentCategory === category.name ? 'white' : category.color,
-              borderColor: category.color
+              backgroundColor: isMobile ? (currentCategory === category.name ? '#f0f0f0' : 'white') : (currentCategory === category.name ? category.color : `${category.color}15`),
+              color: isMobile ? (currentCategory === category.name ? '#2c2c2c' : '#333') : (currentCategory === category.name ? 'white' : category.color),
+              borderColor: isMobile ? (currentCategory === category.name ? '#d0d0d0' : '#e0e0e0') : category.color
             }"
             @click="setCategory(category.name)"
           >
@@ -96,7 +117,7 @@
         </div>
       </section>
 
-      <!-- 推荐视频区域 (仅在All分类时显示) -->
+      <!-- Recommended Videos Section (Only shown in All category) -->
       <section v-if="currentCategory === 'All'" class="recommended-section">
         <div class="recommended-categories">
           <div
@@ -108,15 +129,28 @@
               <div class="category-info">
                 <h3 class="category-title">{{ category }}</h3>
               </div>
-              <button
-                class="view-all-btn"
-                @click="setCategory(category)"
-              >
-                <span>View All</span>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="9,18 15,12 9,6"></polyline>
-                </svg>
-              </button>
+              <div class="category-actions">
+                <button
+                  class="refresh-category-btn"
+                  @click="refreshCategoryVideos(category)"
+                  :title="`Refresh ${category} videos`"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="23,4 23,10 17,10"></polyline>
+                    <polyline points="1,20 1,14 7,14"></polyline>
+                    <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                  </svg>
+                </button>
+                <button
+                  class="view-all-btn"
+                  @click="setCategory(category)"
+                >
+                  <span>View All</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9,18 15,12 9,6"></polyline>
+                  </svg>
+                </button>
+              </div>
             </div>
 
             <div class="category-videos-grid">
@@ -126,17 +160,17 @@
                 class="video-card-premium"
                 @click="goToVideoDetail(video.id)"
               >
-                <!-- 视频缩略图 -->
+                <!-- Video Thumbnail -->
                 <div class="video-thumbnail-premium">
                   <img
                     v-lazy="video.thumbnailUrl"
                     :alt="video.title"
                     class="lazy-placeholder"
                   />
-                  <!-- 视频时长 -->
+                  <!-- Video Duration -->
                   <div class="video-duration-premium">{{ video.duration }}</div>
 
-                  <!-- 播放按钮覆盖层 -->
+                  <!-- Play Button Overlay -->
                   <div class="video-play-overlay-premium">
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polygon points="5,3 19,12 5,21"></polygon>
@@ -144,7 +178,7 @@
                   </div>
                 </div>
 
-                <!-- 视频信息 -->
+                <!-- Video Information -->
                 <div class="video-info-premium">
                   <h4 class="video-title-premium text-ellipsis-2">{{ video.title }}</h4>
                   <div class="video-meta-premium">
@@ -179,7 +213,7 @@
         </div>
       </section>
 
-      <!-- 视频网格 -->
+      <!-- Video Grid -->
       <section class="videos-section">
         <div class="section-header">
           <h2 class="section-title">
@@ -197,13 +231,13 @@
           </div>
         </div>
 
-        <!-- 加载状态 -->
+        <!-- Loading State -->
         <div v-if="isLoading" class="loading-container">
           <div class="loading"></div>
           <p>Loading videos...</p>
         </div>
 
-        <!-- 视频网格 -->
+        <!-- Video Grid -->
         <div v-else-if="displayVideos && displayVideos.length > 0" class="video-grid">
           <div
             v-for="video in displayVideos"
@@ -211,7 +245,7 @@
             class="video-card"
             @click="goToVideoDetail(video.id)"
           >
-            <!-- 视频缩略图 -->
+            <!-- Video Thumbnail -->
             <div class="video-thumbnail">
               <img
                 v-lazy="video.thumbnailUrl"
@@ -219,10 +253,10 @@
                 class="lazy-placeholder"
               />
 
-              <!-- 视频时长 -->
+              <!-- Video Duration -->
               <div class="video-duration">{{ video.duration }}</div>
 
-              <!-- 播放按钮 -->
+              <!-- Play Button -->
               <div class="video-play-overlay">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polygon points="5,3 19,12 5,21"></polygon>
@@ -230,7 +264,7 @@
               </div>
             </div>
 
-            <!-- 视频信息 -->
+            <!-- Video Information -->
             <div class="video-info">
               <h3 class="video-title text-ellipsis-2">{{ video.title }}</h3>
 
@@ -280,24 +314,7 @@
           </div>
         </div>
 
-        <!-- Pagination Info -->
-        <div v-if="displayVideos && displayVideos.length > 0" class="pagination-info">
-          <div class="pagination-stats">
-            <span>Showing {{ displayVideos.length }} / {{ currentCategoryVideoCount }} videos</span>
-            <span v-if="totalPages > 1">Page {{ currentPage }} / {{ totalPages }}</span>
-          </div>
-        </div>
-
-        <!-- Load More Button -->
-        <div v-if="hasMoreVideos && displayVideos && displayVideos.length > 0" class="load-more-container">
-          <button @click="loadMoreVideos" class="load-more-btn">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              <path d="M9 12l2 2 4-4"></path>
-            </svg>
-            Load More Videos
-          </button>
-        </div>
+        <!-- 移除视频计数显示 -->
 
         <!-- Empty State -->
         <div v-if="!isLoading && (!displayVideos || displayVideos.length === 0)" class="empty-state">
@@ -316,14 +333,18 @@
 <script setup lang="ts">
 import { useAppStore } from '~/stores/app'
 
-// 使用状态管理
+  // Use state management
 const store = useAppStore()
 
-// 响应式数据
+  // Reactive data
 const carouselRef = ref<HTMLElement>()
 let autoCarouselInterval: any = null
 
-// 计算属性
+  // Refresh toast related
+const showRefreshToast = ref(false)
+const refreshToastMessage = ref('')
+
+  // Computed properties
 const carousel = computed(() => store.carousel || [])
 const categories = computed(() => store.categories || [])
 const currentCategory = computed(() => store.currentCategory)
@@ -333,13 +354,12 @@ const displayVideos = computed(() => {
   return store.paginatedVideos || []
 })
 
-const hasMoreVideos = computed(() => store.hasMore)
-const currentPage = computed(() => store.currentPage)
-const totalPages = computed(() => store.totalPages)
+  // Remove pagination related computed properties
 const currentCategoryVideoCount = computed(() => store.currentCategoryVideoCount)
 const recommendedVideos = computed(() => store.recommendedVideos)
+const isMobile = computed(() => store.isMobile)
 
-// 方法
+  // Methods
 const setCategory = (category: string) => {
   store.setCategory(category)
 }
@@ -370,25 +390,49 @@ const goToVideoDetail = (videoId: number) => {
 }
 
 const refreshVideos = () => {
-  store.initializeData()
+  // If current category is All, force reload all data
+  if (store.currentCategory === 'All') {
+    store.forceRefreshData()
+    showRefreshToastMessage('All data refreshed')
+  } else {
+    // If it's a specific category, only shuffle that category's videos
+    refreshCategoryVideos(store.currentCategory)
+  }
+}
+
+const refreshCategoryVideos = (category: string) => {
+  // Call store method to shuffle category videos
+  if (store.shuffleCategoryVideos) {
+    store.shuffleCategoryVideos(category)
+    showRefreshToastMessage(`${category} videos shuffled`)
+  }
+}
+
+// Show refresh toast message
+const showRefreshToastMessage = (message: string) => {
+  refreshToastMessage.value = message
+  showRefreshToast.value = true
+
+  // Auto hide after 3 seconds
+  setTimeout(() => {
+    showRefreshToast.value = false
+  }, 3002)
 }
 
 import { formatViews, formatTime } from '~/utils/formatters'
 
-// 分页相关方法
-const loadMoreVideos = () => {
-  store.loadMoreVideos()
-}
+// Drag and touch related variables
+let isDragging = false
+let startX = 0
+let currentX = 0
+let dragDistance = 0
+const dragThreshold = 50
 
-const resetPagination = () => {
-  store.resetPagination()
-}
-
-// 自动轮播
+// Auto carousel
 const startAutoCarousel = () => {
   autoCarouselInterval = setInterval(() => {
     nextCarousel()
-  }, 2000)
+  }, 3002) // Changed to 3 seconds
 }
 
 const stopAutoCarousel = () => {
@@ -396,6 +440,107 @@ const stopAutoCarousel = () => {
     clearInterval(autoCarouselInterval)
     autoCarouselInterval = null
   }
+}
+
+// Pause and resume auto carousel
+const pauseAutoCarousel = () => {
+  if (!isDragging) {
+    stopAutoCarousel()
+  }
+}
+
+const resumeAutoCarousel = () => {
+  if (!isDragging) {
+    startAutoCarousel()
+  }
+}
+
+// Mouse drag events
+const startDrag = (e: MouseEvent) => {
+  isDragging = true
+  startX = e.clientX
+  currentX = e.clientX
+  dragDistance = 0
+  stopAutoCarousel() // 直接停止，不调用pauseAutoCarousel
+}
+
+const onDrag = (e: MouseEvent) => {
+  if (!isDragging) return
+
+  currentX = e.clientX
+  dragDistance = startX - currentX
+}
+
+const endDrag = () => {
+  if (!isDragging) return
+
+  if (Math.abs(dragDistance) > dragThreshold) {
+    if (dragDistance > 0) {
+      nextCarousel()
+    } else {
+      prevCarousel()
+    }
+  }
+
+  isDragging = false
+  dragDistance = 0
+  resumeAutoCarousel()
+}
+
+// Touch events
+const startTouch = (e: TouchEvent) => {
+  isDragging = true
+  startX = e.touches[0].clientX
+  currentX = e.touches[0].clientX
+  dragDistance = 0
+  stopAutoCarousel() // 直接停止，不调用pauseAutoCarousel
+}
+
+const onTouch = (e: TouchEvent) => {
+  if (!isDragging) return
+
+  currentX = e.touches[0].clientX
+  dragDistance = startX - currentX
+}
+
+const endTouch = () => {
+  if (!isDragging) return
+
+  if (Math.abs(dragDistance) > dragThreshold) {
+    if (dragDistance > 0) {
+      nextCarousel()
+    } else {
+      prevCarousel()
+    }
+  }
+
+  isDragging = false
+  dragDistance = 0
+  resumeAutoCarousel()
+}
+
+// Carousel click navigation
+const handleCarouselClick = (item: any) => {
+      if (Math.abs(dragDistance) < 10) { // Only consider as click if minimal movement
+    const videoId = item.linkUrl.split('/').pop()
+          console.log('=== Carousel Click Debug ===')
+      console.log('Current carousel index:', currentCarouselIndex.value)
+      console.log('Clicked item ID:', item.id)
+      console.log('Clicked item title:', item.title)
+          console.log('Clicked item image:', item.imageUrl)
+      console.log('Navigation link:', item.linkUrl)
+          console.log('Extracted video ID:', videoId)
+    console.log('=====================')
+    if (videoId) {
+      goToVideoDetail(parseInt(videoId))
+    }
+  }
+}
+
+// 处理鼠标离开事件
+const handleMouseLeave = () => {
+  endDrag()
+  resumeAutoCarousel()
 }
 
 // 网络状态检测
@@ -410,13 +555,39 @@ const updateOnlineStatus = () => {
   }
 }
 
+// 检测设备类型
+const detectDevice = () => {
+  const isMobileDevice = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+  store.setMobile(isMobileDevice)
+      console.log('Device detection:', isMobileDevice ? 'Mobile device' : 'Desktop device')
+}
+
 // 生命周期
 onMounted(() => {
+  // 检测设备类型
+  detectDevice()
+
+  // 监听窗口大小变化
+  window.addEventListener('resize', detectDevice)
+
   startAutoCarousel()
 
   // 监听网络状态变化
   window.addEventListener('online', updateOnlineStatus)
   window.addEventListener('offline', updateOnlineStatus)
+
+  // Debug carousel data
+  console.log('=== Carousel Data Debug ===')
+      console.log('Carousel data:', carousel.value)
+  carousel.value.forEach((item: any, index: number) => {
+          console.log(`Carousel ${index + 1}:`, {
+      id: item.id,
+      title: item.title,
+      imageUrl: item.imageUrl,
+      linkUrl: item.linkUrl
+    })
+  })
+  console.log('=====================')
 })
 
 onUnmounted(() => {
@@ -425,6 +596,7 @@ onUnmounted(() => {
   // 清理事件监听
   window.removeEventListener('online', updateOnlineStatus)
   window.removeEventListener('offline', updateOnlineStatus)
+  window.removeEventListener('resize', detectDevice)
 })
 </script>
 
@@ -481,10 +653,12 @@ onUnmounted(() => {
   height: 100%;
   opacity: 0;
   transition: opacity 0.5s ease;
+  pointer-events: none; /* 默认不接收点击事件 */
 }
 
 .carousel-item.active {
   opacity: 1;
+  pointer-events: auto; /* 只有激活的项目接收点击事件 */
 }
 
 .carousel-item img {
@@ -539,6 +713,7 @@ onUnmounted(() => {
   transform: scale(1.2);
 }
 
+/* 轮播图控制按钮样式 */
 .carousel-control {
   position: absolute;
   top: 50%;
@@ -555,6 +730,7 @@ onUnmounted(() => {
   justify-content: center;
   transition: all 0.3s ease;
   opacity: 0;
+  z-index: 10;
 }
 
 .carousel:hover .carousel-control {
@@ -571,6 +747,24 @@ onUnmounted(() => {
 
 .carousel-control.next {
   right: 16px;
+}
+
+/* 轮播图拖拽样式 */
+.carousel {
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+.carousel:active {
+  cursor: grabbing;
+}
+
+/* 确保轮播图项目中的图片不接收点击事件，避免干扰 */
+.carousel-item img {
+  pointer-events: none;
 }
 
 /* 分类导航区域 */
@@ -747,6 +941,7 @@ onUnmounted(() => {
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
   word-wrap: break-word;
@@ -852,6 +1047,16 @@ onUnmounted(() => {
 }
 
 @media (max-width: 768px) {
+  /* 移动端隐藏轮播图控制按钮 */
+  .carousel-control {
+    display: none !important;
+  }
+
+  /* 移动端减少轮播图与顶部的间距 */
+  .home-page {
+    padding-top: 10px;
+  }
+
   .carousel {
     height: 200px;
   }
@@ -864,32 +1069,44 @@ onUnmounted(() => {
     font-size: 20px;
   }
 
+  /* 移动端隐藏轮播图描述文字 */
   .carousel-description {
-    font-size: 14px;
+    display: none !important;
   }
 
   .category-nav {
     padding: 20px 0;
-    gap: 17px;
+    gap: 16px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
   }
 
   .category-item {
-    font-size: 18px;
-    padding: 20px 28px;
-    border-radius: 40px;
-    min-height: 72px;
-    font-weight: 700;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-size: 20px;
+    padding: 32px 20px;
+    border-radius: 20px;
+    height: 60px;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
     transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
+    background: white;
+    color: #333;
+    border: 1px solid #e0e0e0;
   }
 
   .category-item:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15), 0 4px 8px rgba(0, 0, 0, 0.1);
   }
 
   .category-icon {
-    font-size: 24px;
+    font-size: 32px;
   }
 
   .video-grid {
@@ -937,12 +1154,23 @@ onUnmounted(() => {
     border-radius: 48px;
     min-height: 80px;
     font-weight: 700;
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.06);
+    background: white;
+    color: #333;
+    border: 1px solid #e0e0e0;
   }
 
   .category-item:hover {
     transform: translateY(-3px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18), 0 6px 12px rgba(0, 0, 0, 0.12);
+  }
+
+  .category-item.active {
+    background: #f8f9fa;
+    color: #2c2c2c;
+    border: 2px solid #d0d0d0;
+    transform: scale(1.02);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15), 0 3px 6px rgba(0, 0, 0, 0.1);
   }
 
   .category-nav {

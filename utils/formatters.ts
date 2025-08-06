@@ -26,8 +26,8 @@ export const formatTime = (dateString: string): string => {
     const days = Math.floor(diffInSeconds / 86400)
     return `${days} day${days > 1 ? 's' : ''} ago`
   } else if (diffInSeconds < 31536000) {
-    const months = Math.floor(diffInSeconds / 2592000)
-    return `${months} month${months > 1 ? 's' : ''} ago`
+    // 不显示几个月前，直接返回空字符串
+    return ''
   } else {
     const years = Math.floor(diffInSeconds / 31536000)
     return `${years} year${years > 1 ? 's' : ''} ago`

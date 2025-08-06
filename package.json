@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev --host 0.0.0.0",
+    "dev": "nuxt dev --host 0.0.0.0 --port 3002",
     "dev:smart": "node scripts/start-dev.js",
     "dev:clean": "node scripts/clean-dev.js && nuxt dev",
     "clean": "node scripts/clean-dev.js",

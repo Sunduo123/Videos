@@ -106,7 +106,7 @@
           </div>
         </div>
 
-        <!-- 额外的测试内容 -->
+        <!-- Additional Test Content -->
         <div class="legal-section">
           <h2>13. Additional Information</h2>
           <p>This section contains additional information to test the scroll-to-top functionality. You can scroll down to see more content and then use the scroll-to-top button to return to the top of the page.</p>
@@ -129,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-// 设置页面标题
+// Set page title
 useHead({
         title: 'Terms of Service - VideoH5',
   meta: [

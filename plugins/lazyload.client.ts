@@ -1,27 +1,24 @@
 import VueLazyload from 'vue-lazyload'
 
 export default defineNuxtPlugin((nuxtApp) => {
-  // 防止重复注册插件
-  if (nuxtApp.vueApp._context.provides.lazyload) {
+  // 简化的重复注册检查
+  if (nuxtApp.vueApp.config.globalProperties.$Lazyload) {
     return
   }
 
-  // 标记插件已注册
-  nuxtApp.vueApp._context.provides.lazyload = true
-
+  // 使用最基础的配置
   nuxtApp.vueApp.use(VueLazyload, {
-    preLoad: 1.3,
-    error: 'https://picsum.photos/320/200?random=error',
-    loading: 'https://picsum.photos/320/200?random=loading',
-    attempt: 3,
-    lazyComponent: true,
+    preLoad: 3.0, // 大幅增加预加载距离，提前加载更多内容
+    error: '/images/video-placeholder.svg',
+    loading: '/images/video-placeholder.svg',
+    attempt: 2, // 减少重试次数，加快失败处理
     observer: true,
     observerOptions: {
-      rootMargin: '0px',
-      threshold: 0.1
+      rootMargin: '300px', // 大幅增加根边距，提前触发加载
+      threshold: 0.01 // 降低阈值，更早触发
     },
-    errorHandler: (err, src, type) => {
-      console.warn('Image load failed:', src, err)
-    }
+    throttleWait: 50, // 减少节流时间，更快响应
+    listenEvents: ['scroll', 'wheel', 'mousewheel', 'resize', 'animationend', 'transitionend', 'touchmove']
+    // 移除延迟，立即加载
   })
 })

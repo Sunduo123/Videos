@@ -1,21 +1,21 @@
 <template>
   <div class="search-page">
     <div class="container">
-      <!-- 搜索头部 -->
+      <!-- Search Header -->
       <section class="search-header">
         <h1 class="search-title">Search Results</h1>
         <p class="search-subtitle">Found {{ (searchResults || []).length }} related videos</p>
       </section>
 
-      <!-- 搜索结果 -->
+      <!-- Search Results -->
       <section class="search-results">
-        <!-- 加载状态 -->
+        <!-- Loading State -->
         <div v-if="isLoading" class="loading-container">
           <div class="loading"></div>
           <p>Searching...</p>
         </div>
 
-        <!-- 空状态 -->
+        <!-- Empty State -->
         <div v-else-if="!searchResults || searchResults.length === 0" class="empty-state">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="11" cy="11" r="8"></circle>
@@ -28,7 +28,7 @@
           </NuxtLink>
         </div>
 
-        <!-- 搜索结果列表 -->
+        <!-- Search Results List -->
         <div v-else class="search-results-grid">
           <div
             v-for="video in searchResults"
@@ -36,7 +36,7 @@
             class="video-card"
             @click="goToVideoDetail(video.id)"
           >
-            <!-- 视频缩略图 -->
+            <!-- Video Thumbnail -->
             <div class="video-thumbnail">
               <img
                 v-lazy="video.thumbnailUrl"
@@ -44,10 +44,10 @@
                 class="lazy-placeholder"
               />
 
-              <!-- 视频时长 -->
+              <!-- Video Duration -->
               <div class="video-duration">{{ video.duration }}</div>
 
-              <!-- 播放按钮 -->
+              <!-- Play Button -->
               <div class="video-play-overlay">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polygon points="5,3 19,12 5,21"></polygon>
@@ -55,7 +55,7 @@
               </div>
             </div>
 
-            <!-- 视频信息 -->
+            <!-- Video Information -->
             <div class="video-info">
               <h3 class="video-title text-ellipsis-2">{{ video.title }}</h3>
 

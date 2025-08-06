@@ -30,15 +30,15 @@
         </div>
       </section>
 
-      <!-- 收藏视频列表 -->
+      <!-- Favorite Videos List -->
       <section class="favorites-section">
-        <!-- 加载状态 -->
+        <!-- Loading State -->
         <div v-if="isLoading" class="loading-container">
           <div class="loading"></div>
           <p>Loading favorites...</p>
         </div>
 
-        <!-- 空状态 -->
+        <!-- Empty State -->
         <div v-else-if="!favoriteVideos || favoriteVideos.length === 0" class="empty-state">
           <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
@@ -50,7 +50,7 @@
           </NuxtLink>
         </div>
 
-        <!-- 视频网格 -->
+        <!-- Video Grid -->
         <div v-else class="video-grid">
           <div
             v-for="video in favoriteVideos"
@@ -58,7 +58,7 @@
             class="video-card"
             @click="goToVideoDetail(video.id)"
           >
-            <!-- 视频缩略图 -->
+            <!-- Video Thumbnail -->
             <div class="video-thumbnail">
               <img
                 v-lazy="video.thumbnailUrl"
@@ -66,17 +66,17 @@
                 class="lazy-placeholder"
               />
 
-              <!-- 视频时长 -->
+              <!-- Video Duration -->
               <div class="video-duration">{{ video.duration }}</div>
 
-              <!-- 播放按钮 -->
+              <!-- Play Button -->
               <div class="video-play-overlay">
                 <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polygon points="5,3 19,12 5,21"></polygon>
                 </svg>
               </div>
 
-              <!-- 取消收藏按钮 -->
+              <!-- Remove from Favorites Button -->
               <button
                 @click.stop="removeFromFavorites(video.id)"
                 class="remove-favorite-btn"
@@ -89,7 +89,7 @@
               </button>
             </div>
 
-            <!-- 视频信息 -->
+            <!-- Video Information -->
             <div class="video-info">
               <h3 class="video-title text-ellipsis-2">{{ video.title }}</h3>
 

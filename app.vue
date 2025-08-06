@@ -5,7 +5,7 @@
       <div class="header-content">
         <!-- Logo -->
         <NuxtLink to="/" class="logo">
-          VideoH5
+          <img src="/logo/logo1.png" alt="VideoH5" class="logo-image" />
         </NuxtLink>
 
         <!-- 搜索框 -->
@@ -15,7 +15,7 @@
             @keyup.enter="handleSearch"
             type="text"
             class="search-input"
-            :placeholder="isMobile ? 'Search...' : 'Search videos, creators, or topics...'"
+            :placeholder="isMobile ? '' : 'Search videos, creators, or topics...'"
             style="color: #18191c;"
             data-testid="main-search-input"
           />
@@ -66,9 +66,14 @@
           <!-- 品牌区域 -->
           <div class="footer-brand">
             <div class="brand-logo">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"></polygon>
-              </svg>
+              <img
+                src="/logo/logo1.png"
+                alt="VideoH5 Logo"
+                class="brand-logo-image"
+                loading="lazy"
+                width="80"
+                height="80"
+              />
               <span class="brand-name">VideoH5</span>
             </div>
             <p class="brand-description">
@@ -139,7 +144,7 @@
         <div class="footer-bottom">
           <div class="footer-bottom-content">
             <div class="copyright">
-              <p>&copy; 2024 VideoH5. All rights reserved.</p>
+              <p>&copy; 2025 VideoH5. All rights reserved.</p>
               <p>Let videos connect the world, let creativity have more value</p>
             </div>
             <div class="legal-links">

@@ -1,2 +1,19 @@
-User-Agent: *
-Disallow:
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://videoh5.com/sitemap.xml
+
+# Crawl-delay
+Crawl-delay: 1
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_nuxt/
+Disallow: /.nuxt/
+
+# Allow important pages
+Allow: /privacy
+Allow: /terms
+Allow: /cookies

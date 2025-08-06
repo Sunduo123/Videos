@@ -1,7 +1,7 @@
 <template>
   <div class="video-detail-page">
     <div class="container">
-      <!-- 视频播放器 -->
+      <!-- Video Player -->
       <section class="video-player-section">
         <div class="video-player-container">
           <!-- Network Error -->
@@ -26,7 +26,7 @@
             </div>
           </div>
 
-          <!-- YouTube 视频播放器 -->
+          <!-- YouTube Video Player -->
           <div v-else-if="currentVideo?.youtubeId" class="youtube-player-container">
             <iframe
               :src="`https://www.youtube.com/embed/${currentVideo.youtubeId}?autoplay=1&rel=0`"
@@ -38,7 +38,7 @@
               @load="handleVideoLoad"
             ></iframe>
           </div>
-          <!-- 原生视频播放器 -->
+          <!-- Native Video Player -->
           <video
             v-else
             ref="videoRef"
@@ -49,7 +49,7 @@
         </div>
       </section>
 
-      <!-- 视频信息 -->
+      <!-- Video Information -->
       <section class="video-info-section">
         <div class="video-header">
           <h1 class="video-title">{{ currentVideo?.title }}</h1>
@@ -124,19 +124,19 @@
         </div>
       </section>
 
-      <!-- 评论区域 -->
+      <!-- Comments Section -->
       <section class="comments-section">
         <div class="comments-header">
           <h3>Comments ({{ (videoComments || []).length }})</h3>
         </div>
 
-        <!-- 发表评论 -->
+        <!-- Post Comment -->
         <div class="comment-form">
           <img
-            v-lazy="`/images/default-avatar.png`"
+            v-lazy="`/images/default-avatar.svg`"
             alt="User Avatar"
             class="user-avatar"
-            @error="$event.target.src = '/images/default-avatar.png'"
+            @error="$event.target.src = '/images/default-avatar.svg'"
           />
           <div class="comment-input-container">
             <textarea
@@ -156,7 +156,7 @@
           </div>
         </div>
 
-        <!-- 评论列表 -->
+        <!-- Comments List -->
         <div class="comments-list">
           <div
             v-for="comment in videoComments"
@@ -164,9 +164,10 @@
             class="comment-item"
           >
             <img
-              v-lazy="comment.userAvatar"
+              v-lazy="comment.userAvatar || '/images/default-avatar.svg'"
               :alt="comment.userName"
               class="comment-avatar"
+              @error="$event.target.src = '/images/default-avatar.svg'"
             />
             <div class="comment-content">
               <div class="comment-header">
@@ -197,7 +198,7 @@
         </div>
       </section>
 
-      <!-- 相关视频 -->
+      <!-- Related Videos -->
       <section class="related-videos-section">
         <h3>Related Videos</h3>
         <div class="related-videos-grid">
@@ -234,11 +235,11 @@
 import { useAppStore } from '~/stores/app'
 
 
-// 使用状态管理
+  // Use state management
 const store = useAppStore()
 const route = useRoute()
 
-// 响应式数据
+  // Reactive data
 const videoRef = ref<HTMLVideoElement>()
 const newComment = ref('')
 const networkError = ref(false)
@@ -246,7 +247,7 @@ const retryCount = ref(0)
 const maxRetries = 3
 let player: any = null
 
-// 计算属性
+  // Computed properties
 const videoId = computed(() => parseInt(route.params.id as string))
 const currentVideo = computed(() => store.videos.find((v: any) => v.id === videoId.value))
 const videoComments = computed(() => store.comments.filter((c: any) => c.videoId === videoId.value))
@@ -294,7 +295,7 @@ const submitComment = () => {
     id: Date.now(),
     videoId: currentVideo.value.id,
     userName: 'Current User',
-    userAvatar: 'https://picsum.photos/40/40?random=999',
+    userAvatar: '/images/default-avatar.svg',
     content: newComment.value,
     likes: 0,
     replies: 0,
@@ -306,7 +307,7 @@ const submitComment = () => {
   newComment.value = ''
 }
 
-// 网络错误处理
+  // Network error handling
 const handleVideoError = () => {
   networkError.value = true
   console.log('Video loading error detected')
@@ -324,21 +325,21 @@ const retryVideo = () => {
     networkError.value = false
     console.log(`Retrying video load (attempt ${retryCount.value}/${maxRetries})`)
 
-    // 强制重新加载iframe
+    // Force reload iframe
     const iframe = document.querySelector('.youtube-player') as HTMLIFrameElement
     if (iframe) {
       iframe.src = iframe.src
     }
   } else {
-    alert('已达到最大重试次数，请检查网络连接或稍后重试')
+    alert('Maximum retry attempts reached. Please check your network connection or try again later.')
   }
 }
 
 const checkNetworkStatus = () => {
   if (navigator.onLine) {
-    alert('网络连接正常，可能是YouTube服务暂时不可用')
+    alert('Network connection is normal. YouTube service might be temporarily unavailable.')
   } else {
-    alert('网络连接已断开，请检查网络设置')
+    alert('Network connection is disconnected. Please check your network settings.')
   }
 }
 
@@ -346,11 +347,11 @@ const goToVideo = (videoId: number) => {
   navigateTo(`/video/${videoId}`)
 }
 
-// 初始化Plyr播放器
+// Initialize Plyr player
 const initPlayer = () => {
   if (videoRef.value && !player) {
     try {
-      // 检查Plyr是否可用
+      // Check if Plyr is available
       if (typeof window !== 'undefined' && (window as any).Plyr) {
         player = new (window as any).Plyr(videoRef.value, {
           controls: [
@@ -370,14 +371,14 @@ const initPlayer = () => {
           speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 2] }
         })
       } else {
-        // 如果Plyr不可用，使用原生HTML5播放器
+        // If Plyr is not available, use native HTML5 player
         if (videoRef.value) {
           videoRef.value.controls = true
         }
       }
     } catch (error) {
-      console.error('Plyr初始化失败:', error)
-      // 如果Plyr初始化失败，使用原生HTML5播放器
+      console.error('Plyr initialization failed:', error)
+      // If Plyr initialization fails, use native HTML5 player
       if (videoRef.value) {
         videoRef.value.controls = true
       }
@@ -385,21 +386,21 @@ const initPlayer = () => {
   }
 }
 
-// 生命周期
+  // Lifecycle
 onMounted(() => {
-  // 添加观看历史
+  // Add to viewing history
   if (currentVideo.value) {
     store.addToHistory(currentVideo.value.id)
   }
 
-  // 延迟初始化播放器，确保Plyr完全加载
+  // Delay player initialization to ensure Plyr is fully loaded
   nextTick(() => {
     setTimeout(() => {
       initPlayer()
     }, 100)
   })
 
-  // 添加全局错误监听
+  // Add global error listener
   window.addEventListener('error', (event) => {
     if (event.target && (event.target as any).tagName === 'IFRAME') {
       handleVideoError()
@@ -413,13 +414,13 @@ onUnmounted(() => {
     player = null
   }
 
-  // 清理事件监听
+  // Clean up event listeners
   window.removeEventListener('error', () => {})
 })
 </script>
 
 <style scoped>
-/* 视频详情页样式 */
+/* Video Detail Page Styles */
 .video-detail-page {
   min-height: 100vh;
   background: var(--bilibili-gray);
@@ -427,7 +428,7 @@ onUnmounted(() => {
   justify-content: space-evenly;
 }
 
-/* 视频播放器区域 */
+/* Video Player Area */
 .video-player-section {
   margin-bottom: 24px;
 }
@@ -461,7 +462,7 @@ onUnmounted(() => {
   border-radius: 12px;
 }
 
-/* 视频信息区域 */
+/* Video Information Area */
 .video-info-section {
   max-width: 1000px;
   margin: 0 auto 32px;
@@ -623,7 +624,7 @@ onUnmounted(() => {
   color: white;
 }
 
-/* 评论区域 */
+/* Comments Area */
 .comments-section {
   max-width: 1000px;
   margin: 0 auto 32px;
@@ -764,7 +765,7 @@ onUnmounted(() => {
   color: var(--bilibili-pink);
 }
 
-/* 相关视频区域 */
+/* Related Videos Area */
 .related-videos-section {
   max-width: 1000px;
   margin: 0 auto;
@@ -941,15 +942,53 @@ onUnmounted(() => {
 
   .related-videos-grid {
     grid-template-columns: 1fr;
+    gap: 0;
   }
 
   .related-video-card {
-    flex-direction: column;
+    flex-direction: row;
+    padding: 16px 0;
+    border-bottom: 1px solid #e5e7eb;
+    border-radius: 0;
+    margin-bottom: 0;
+  }
+
+  .related-video-card:last-child {
+    border-bottom: none;
+  }
+
+  .related-video-card:hover {
+    background: transparent;
   }
 
   .related-video-thumbnail {
-    width: 100%;
-    height: 120px;
+    width: 140px;
+    height: 80px;
+    flex-shrink: 0;
+    border-radius: 8px;
+  }
+
+  .related-video-info {
+    padding-left: 12px;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+
+  .related-video-title {
+    font-size: 15px;
+    line-height: 1.3;
+    height: auto;
+    margin-bottom: 6px;
+  }
+
+  .related-video-uploader {
+    font-size: 13px;
+    margin-bottom: 4px;
+  }
+
+  .related-video-stats {
+    font-size: 12px;
+    gap: 8px;
   }
 }
 
@@ -1005,6 +1044,23 @@ onUnmounted(() => {
     appearance: none !important;
     transform: scale(1) !important;
     -webkit-transform: scale(1) !important;
+  }
+
+  .related-video-card {
+    padding: 12px 0;
+  }
+
+  .related-video-thumbnail {
+    width: 120px;
+    height: 70px;
+  }
+
+  .related-video-title {
+    font-size: 14px;
+  }
+
+  .related-video-uploader {
+    font-size: 12px;
   }
 }
 
