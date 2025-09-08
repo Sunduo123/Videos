@@ -1,4 +1,4 @@
-# Bilibili 短视频网站
+# 短视频网站
 
 一个基于 Nuxt 3 + Vue 3 + TypeScript 开发的短视频网站，100% 还原 B站 布局和功能。
 
